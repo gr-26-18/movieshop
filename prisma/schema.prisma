@@ -57,7 +57,6 @@ model Person {
   credits     MovieCredit[] //This person has a list of movies they have worked on
 }
 
-
 // Explicit join table to associate a Person with a Movie in a specific role 
 
 enum CreditRole {
