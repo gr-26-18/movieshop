@@ -1,3 +1,6 @@
 @import "tailwindcss";
 
-/* Core Tailwind directives for the team project. */
+/* Core Tailwind directives for the team project. 
+ * Specific dummy styles for the dashboard task are in 
+ * src/app/dashboard/dummy-folder/globals.dummy.css 
+ */

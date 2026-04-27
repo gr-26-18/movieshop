@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "prisma:main:generate": "prisma generate --schema prisma/schema.prisma",
-    "prisma:main:seed": "npm run prisma:main:generate && npx tsx prisma/seed.ts"
+    "prisma:main:seed": "npm run prisma:main:generate && npx tsx prisma/seed.ts",
+    "prisma:dummy:generate": "prisma generate --schema src/app/dashboard/prisma/schema.dummy.prisma",
+    "prisma:dummy:push": "prisma db push --schema src/app/dashboard/prisma/schema.dummy.prisma --url \"file:./src/app/dashboard/prisma/dashboard-dev.db\"",
+    "prisma:dummy:studio": "prisma studio --schema src/app/dashboard/prisma/schema.dummy.prisma --url \"file:./src/app/dashboard/prisma/dashboard-dev.db\"",
+    "prisma:dummy:seed": "npm run prisma:dummy:generate && npx tsx src/app/dashboard/prisma/seed.dummy.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
