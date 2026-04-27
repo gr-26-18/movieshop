@@ -7,8 +7,6 @@ datasource db {
   provider = "sqlite"
 }
 
-
-// this is added
 enum OrderStatus {
   PENDING
   PROCESSING
@@ -17,7 +15,6 @@ enum OrderStatus {
   CANCELLED
 }
 
-// this is added
 model Movie {
   id          String      @id @default(cuid())
   title       String
@@ -29,7 +26,6 @@ model Movie {
   orderItems  OrderItem[]
 }
 
-// this is added
 model Order {
   id              String      @id @default(cuid())
   userId          String
@@ -43,7 +39,6 @@ model Order {
   orderItems      OrderItem[]
 }
 
-// this is added
 model OrderItem {
   id       String @id @default(cuid())
   orderId  String
@@ -53,4 +48,3 @@ model OrderItem {
   order    Order  @relation(fields: [orderId], references: [id])
   movie    Movie  @relation(fields: [movieId], references: [id])
 }
-
