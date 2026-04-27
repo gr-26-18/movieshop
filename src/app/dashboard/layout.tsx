@@ -1,6 +1,6 @@
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "./components-dummy/sidebar"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "./_components/app-sidebar"
-import { Separator } from "./components-dummy/separator"
+import { Separator } from "@/components/ui/separator"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,9 +8,9 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "./components-dummy/breadcrumb"
-import { TooltipProvider } from "./components-dummy/tooltip"
-import { dashboardTheme } from "./theme-dummy"
+} from "@/components/ui/breadcrumb"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { dashboardTheme } from "./theme"
 import "./dashboard.css"
 
 export default function DashboardLayout({

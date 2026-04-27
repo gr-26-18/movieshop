@@ -6,10 +6,10 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "../components-dummy/sheet"
-import { Badge } from "../components-dummy/badge"
+} from "@/components/ui/sheet"
+import { Badge } from "@/components/ui/badge"
 import { Calendar, Package, MapPin, CreditCard, ShoppingBag } from "lucide-react"
-import { Separator } from "../components-dummy/separator"
+import { Separator } from "@/components/ui/separator"
 import { useRouter, useSearchParams } from "next/navigation"
 
 interface OrderDetailsProps {
@@ -40,7 +40,7 @@ export function OrderDetailsSheet({ order }: OrderDetailsProps) {
             Order ID: <span className="font-mono text-foreground font-medium">{order.id}</span>
           </SheetDescription>
           <div className="flex items-center gap-2">
-            <Badge variant={order.status === "DELIVERED" ? "default" : "secondary"}>
+            <Badge variant={order.status === "COMPLETED" ? "default" : "secondary"}>
               {order.status}
             </Badge>
           </div>
@@ -71,9 +71,9 @@ export function OrderDetailsSheet({ order }: OrderDetailsProps) {
               <MapPin className="size-4 text-primary" /> Shipping Address
             </h3>
             <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg border">
-              <p className="text-foreground font-medium">{order.shippingAddress || "N/A"}</p>
-              <p>{order.shippingCity}, {order.shippingZip}</p>
-              <p>{order.shippingCountry}</p>
+              <p className="text-foreground font-medium">
+                Shipping details are not available in the current schema.
+              </p>
             </div>
           </div>
 
@@ -100,7 +100,7 @@ export function OrderDetailsSheet({ order }: OrderDetailsProps) {
                     <p className="text-sm font-medium truncate">{item.movie.title}</p>
                     <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                   </div>
-                  <p className="text-sm font-bold">${item.price.toFixed(2)}</p>
+                  <p className="text-sm font-bold">${item.priceAtPurchase.toFixed(2)}</p>
                 </div>
               ))}
             </div>

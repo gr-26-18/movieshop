@@ -25,7 +25,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "../components-dummy/sidebar"
+} from "@/components/ui/sidebar"
 
 // This is the navigation data
 const data = {
