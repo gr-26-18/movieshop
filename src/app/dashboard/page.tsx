@@ -1,8 +1,5 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Package, DollarSign, Calendar, ChevronRight, ShoppingBag } from "lucide-react";
-import { prismaDashboard } from "./dummy-folder/lib/prisma";
-import { OrderStatus } from "@/generated/prisma-dashboard/client";
+import { prisma } from "@/lib/prisma";
 import { Button } from "./components-dummy/button";
 import { MovieThumbnail } from "./_components/movie-thumbnail";
 
@@ -24,7 +21,7 @@ export default async function DashboardPage({
 
   /* Get all orders for this user with order items. */
 
-  const orders = await prismaDashboard.order.findMany({
+  const orders = await prisma.order.findMany({
     where: { userId },
     include: {
       orderItems: {
@@ -50,7 +47,7 @@ export default async function DashboardPage({
 
   const totalOrders = orders.length;
   const totalSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-  const pendingOrders = orders.filter((o) => o.status === OrderStatus.PENDING).length;
+  const pendingOrders = orders.filter((o) => o.status === "PENDING").length;
 
   return (
     <div className="space-y-8">
@@ -92,8 +89,7 @@ export default async function DashboardPage({
                       <StatusBadge status={order.status} />
                     </div>
                     <p className="text-sm text-gray-600">
-                      {new Date(order.orderDate).toLocaleDateString()} - {order.shippingCity},{" "}
-                      {order.shippingCountry}
+                      {new Date(order.orderDate).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="text-right">
@@ -113,7 +109,7 @@ export default async function DashboardPage({
                           <span>
                             {item.movie.title} x{item.quantity}
                           </span>
-                          <span className="font-semibold">${item.price.toFixed(2)}</span>
+                          <span className="font-semibold">${item.priceAtPurchase.toFixed(2)}</span>
                         </li>
                       ))}
                     </ul>
@@ -140,12 +136,10 @@ export default async function DashboardPage({
 
 /* Displays order status with appropriate colors. */
 
-function StatusBadge({ status }: { status: OrderStatus }) {
-  const statusColors: Record<OrderStatus, string> = {
+function StatusBadge({ status }: { status: "PENDING" | "COMPLETED" | "CANCELLED" }) {
+  const statusColors: Record<"PENDING" | "COMPLETED" | "CANCELLED", string> = {
     PENDING: "bg-amber-100 text-amber-800 border-amber-200",
-    PROCESSING: "bg-blue-100 text-blue-800 border-blue-200",
-    SHIPPED: "bg-purple-100 text-purple-800 border-purple-200",
-    DELIVERED: "bg-green-100 text-green-800 border-green-200",
+    COMPLETED: "bg-green-100 text-green-800 border-green-200",
     CANCELLED: "bg-red-100 text-red-800 border-red-200",
   }
 
