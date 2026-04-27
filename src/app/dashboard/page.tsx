@@ -16,7 +16,8 @@ export default async function DashboardPage({
   const params = await searchParams;
   const selectedOrderId = params.order;
 
-  // Placeholder for now
+  // TODO(auth): replace this placeholder with Better Auth session user id
+  // once auth integration is merged by teammate.
   const userId = "placeholder-user-id";
 
   /* Get all orders for this user with order items. */

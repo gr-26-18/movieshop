@@ -3,9 +3,9 @@
 export default function HomePage() {
   return (
 
-    <div className="flex items-center p-8">
-      <h1> Hello Movie Lovers</h1>
-      <p className="text-sm text-gray-600">Welcome to yhe true Entertainement</p>
+    <div className="flex flex-col items-start gap-2 p-8">
+      <h1 className="text-2xl font-bold">Hello Movie Lovers</h1>
+      <p className="text-sm text-gray-600">Welcome to the true entertainment</p>
     </div>
   )
 }
