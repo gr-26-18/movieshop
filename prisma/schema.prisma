@@ -58,7 +58,6 @@ model Person {
 }
 
 // Explicit join table to associate a Person with a Movie in a specific role 
-
 enum CreditRole {
   DIRECTOR
   ACTOR
