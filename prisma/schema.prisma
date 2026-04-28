@@ -12,49 +12,44 @@ datasource db {
   provider = "postgresql"
 }
 
-
 // ======================================================================
 // MOVIE & CATALOG MODELS
 // ======================================================================
-model Movie {
 
-  id          String        @id @default(cuid())
-  title       String        
-  description String        
-  price       Int        
-  releaseDate DateTime      
-  imageUrl    String?       
-  stock       Int           @default(0) 
-  runtime     Int?          
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+model Movie {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Int
+  releaseDate DateTime
+  imageUrl    String?
+  stock       Int      @default(0)
+  runtime     Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relationships
-  genres      Genre[]      
-  credits     MovieCredit[] 
-  orderItems  OrderItem[]   
-
+  genres     Genre[]
+  credits    MovieCredit[]
+  orderItems OrderItem[]
 }
 
 model Genre {
-  id          String   @id @default(cuid())
-  name        String   @unique 
-  description String?          
-
-  // Relationships
-  movies      Movie[]  //genre contains a list of movies.
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String? // Relationships
+  movies      Movie[] //genre contains a list of movies.
 }
 
-
-
 // Model to manage information about directors and actors 
+
 model Person {
-  id          String   @id @default(cuid())
-  name        String
-  bio         String?
+  id   String  @id @default(cuid())
+  name String
+  bio  String?
 
   // Relationships
-  credits     MovieCredit[] //This person has a list of movies they have worked on
+  credits MovieCredit[] //This person has a list of movies they have worked on
 }
 
 
@@ -64,20 +59,24 @@ enum CreditRole {
   DIRECTOR
   ACTOR
 }
-model MovieCredit {
-  id        String     @id @default(cuid())
-  movieId   String
-  personId  String
-  role      CreditRole // Differentiates if they directed or acted 
 
-  movie     Movie      @relation(fields: [movieId], references: [id], onDelete: Cascade)
-  person    Person     @relation(fields: [personId], references: [id], onDelete: Cascade)
+model MovieCredit {
+  id       String     @id @default(cuid())
+  movieId  String
+  personId String
+  role     CreditRole // Differentiates if they directed or acted 
+
+  movie  Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@unique([movieId, personId, role])
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 31e25fd (Editing sign in and register)
 // =================================================================
 // E-COMMERCE MODELS
 // ==================================================================
@@ -90,26 +89,82 @@ enum OrderStatus {
 
 model Order {
   id          String      @id @default(cuid())
-  userId      String      // Reference to Better Auth user 
-  totalAmount Int      
-  status      OrderStatus @default(PENDING) 
-  orderDate   DateTime    @default(now())     
-
-  // Relationships
+  userId      String // Reference to Better Auth user 
+  totalAmount Int
+  status      OrderStatus @default(PENDING)
+  orderDate   DateTime    @default(now()) // Relationships
   orderItems  OrderItem[]
 }
 
 model OrderItem {
-  id              String   @id @default(cuid())
-  orderId         String   
-  movieId         String  
-  quantity        Int      
-  priceAtPurchase Int    
-
-  // Relationships
-  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  movie           Movie    @relation(fields: [movieId], references: [id])
+  id              String @id @default(cuid())
+  orderId         String
+  movieId         String
+  quantity        Int
+  priceAtPurchase Int // Relationships
+  order           Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  movie           Movie  @relation(fields: [movieId], references: [id])
 }
 
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
 
+  @@unique([email])
+  @@map("user")
+}
 
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
