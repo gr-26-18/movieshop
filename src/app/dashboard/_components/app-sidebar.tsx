@@ -38,12 +38,12 @@ const data = {
     },
     {
       title: "My Movies",
-      url: "/movies",
+      url: "/dashboard",
       icon: Film,
     },
     {
       title: "Shop",
-      url: "/movies",
+      url: "/",
       icon: ShoppingBag,
     },
   ],

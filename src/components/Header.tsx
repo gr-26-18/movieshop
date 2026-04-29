@@ -54,14 +54,16 @@ export default function Header() {
             <ShoppingCart className="h-5 w-5" />
             <span className="sr-only">Shopping Cart</span>
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground rounded-full p-2"
-          >
-            <User className="h-5 w-5" />
-            <span className="sr-only">User Account</span>
-          </Button>
+          <Link href="/dashboard">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-foreground rounded-full p-2"
+            >
+              <User className="h-5 w-5" />
+              <span className="sr-only">User Account</span>
+            </Button>
+          </Link>
         </div>
       </div>
     </header>
