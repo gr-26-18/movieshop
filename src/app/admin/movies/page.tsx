@@ -1,8 +1,48 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
-export default async function AdminMoviesPage() {
+type MoviesSearchParams = {
+  q?: string;
+  stock?: "all" | "in" | "out";
+};
+
+function currencyFromCents(value: number): string {
+  return `$${(value / 100).toFixed(2)}`;
+}
+
+function toDateLabel(value: Date): string {
+  return value.toLocaleDateString();
+}
+
+export default async function AdminMoviesPage({
+  searchParams,
+}: {
+  searchParams: Promise<MoviesSearchParams>;
+}) {
+  const params = await searchParams;
+  const query = params.q?.trim() ?? "";
+  const stockFilter = params.stock ?? "all";
+
+  const whereClause = {
+    ...(query
+      ? {
+          title: {
+            contains: query,
+            mode: "insensitive" as const,
+          },
+        }
+      : {}),
+    ...(stockFilter === "in"
+      ? { stock: { gt: 0 } }
+      : stockFilter === "out"
+      ? { stock: 0 }
+      : {}),
+  };
+
   const movies = await prisma.movie.findMany({
+    where: whereClause,
     orderBy: { updatedAt: "desc" },
     take: 20,
     select: {
@@ -21,7 +61,7 @@ export default async function AdminMoviesPage() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Movies</h2>
           <p className="text-sm text-muted-foreground">
-            Basic admin movie list scaffold.
+            Search, filter, and review movie inventory.
           </p>
         </div>
         <Link
@@ -30,6 +70,37 @@ export default async function AdminMoviesPage() {
         >
           New Movie
         </Link>
+      </div>
+
+      <form className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
+        <Input
+          defaultValue={query}
+          name="q"
+          placeholder="Search by movie title..."
+        />
+        <select
+          defaultValue={stockFilter}
+          name="stock"
+          className="h-9 rounded-md border bg-background px-3 text-sm"
+        >
+          <option value="all">All stock states</option>
+          <option value="in">In stock only</option>
+          <option value="out">Out of stock only</option>
+        </select>
+        <button
+          className="h-9 rounded-md border px-3 text-sm hover:bg-muted"
+          type="submit"
+        >
+          Apply
+        </button>
+      </form>
+
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <span>Showing {movies.length} result(s)</span>
+        {query ? <Badge variant="outline">query: {query}</Badge> : null}
+        {stockFilter !== "all" ? (
+          <Badge variant="outline">stock: {stockFilter}</Badge>
+        ) : null}
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
@@ -48,12 +119,16 @@ export default async function AdminMoviesPage() {
             {movies.map((movie) => (
               <tr key={movie.id}>
                 <td className="px-4 py-3">{movie.title}</td>
-                <td className="px-4 py-3">${(movie.price / 100).toFixed(2)}</td>
-                <td className="px-4 py-3">{movie.stock}</td>
+                <td className="px-4 py-3">{currencyFromCents(movie.price)}</td>
                 <td className="px-4 py-3">
-                  {movie.releaseDate.toLocaleDateString()}
+                  {movie.stock > 0 ? (
+                    <Badge variant="outline">{movie.stock}</Badge>
+                  ) : (
+                    <Badge variant="outline">Out</Badge>
+                  )}
                 </td>
-                <td className="px-4 py-3">{movie.updatedAt.toLocaleDateString()}</td>
+                <td className="px-4 py-3">{toDateLabel(movie.releaseDate)}</td>
+                <td className="px-4 py-3">{toDateLabel(movie.updatedAt)}</td>
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/movies/${movie.id}/edit`}
@@ -67,7 +142,7 @@ export default async function AdminMoviesPage() {
             {movies.length === 0 ? (
               <tr>
                 <td className="px-4 py-8 text-muted-foreground" colSpan={6}>
-                  No movies available yet.
+                  No movies match your current filters.
                 </td>
               </tr>
             ) : null}

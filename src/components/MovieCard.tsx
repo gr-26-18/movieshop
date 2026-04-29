@@ -15,6 +15,7 @@ interface MovieCardProps {
 }
 
 export default function MovieCard({ movie, priority = false }: MovieCardProps) {
+  const priceLabel = `$${(movie.price / 100).toFixed(2)}`;
 
   return (
     <div className="flex flex-col group cursor-pointer p-3 -m-3 rounded-2xl transition-all duration-300 hover:bg-slate-50 hover:shadow-xl hover:scale-105">
@@ -38,7 +39,7 @@ export default function MovieCard({ movie, priority = false }: MovieCardProps) {
             {movie.title}
           </h3>
           <span className="font-bold text-sm shrink-0">
-            ${movie.price.toFixed(2)}
+            {priceLabel}
           </span>
         </div>
         
