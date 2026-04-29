@@ -19,17 +19,15 @@ export default function MovieCard({ movie, priority = false }: MovieCardProps) {
 
   return (
     <div className="flex flex-col group cursor-pointer p-3 -m-3 rounded-2xl transition-all duration-300 hover:bg-slate-50 hover:shadow-xl hover:scale-105">
-      {/* Image Container */}
-      <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-slate-200">
-        <Image
-          src={movie.imageUrl || '/placeholder-movie.jpg'}
-          alt={movie.title}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority={priority}
-        />
-      </div>
+      <Image
+        src={movie.imageUrl || '/placeholder-movie.jpg'}
+        alt={movie.title}
+        width={300}
+        height={450}
+        className="w-full h-auto rounded-xl mb-4 bg-slate-200 object-cover transition-transform duration-300 group-hover:scale-105"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 20vw"
+        priority={priority}
+      />
 
       {/* Info Container */}
       <div className="flex flex-col flex-1 px-1">
