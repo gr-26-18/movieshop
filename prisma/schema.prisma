@@ -72,11 +72,6 @@ model MovieCredit {
   @@unique([movieId, personId, role])
 }
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 31e25fd (Editing sign in and register)
 // =================================================================
 // E-COMMERCE MODELS
 // ==================================================================
