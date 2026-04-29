@@ -1,17 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-
-async function isCurrentUserAdmin(): Promise<boolean> {
-  // TODO(auth): Replace this placeholder with Better Auth role/session check.
-  return true;
-}
+import { isAdminUser } from "@/lib/admin-auth";
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isAdmin = await isCurrentUserAdmin();
+  const isAdmin = await isAdminUser();
 
   if (!isAdmin) {
     redirect("/");
