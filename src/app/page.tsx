@@ -7,26 +7,28 @@ export default async function LandingPage() {
     prisma.movie.findMany({
       take: 5,
       orderBy: { orderItems: { _count: 'desc' } },
+      include: { genres: true },
     }),
     prisma.movie.findMany({
       take: 5,
       orderBy: { releaseDate: 'desc' },
+      include: { genres: true },
     }),
     prisma.movie.findMany({
       take: 5,
       orderBy: { releaseDate: 'asc' },
+      include: { genres: true },
     }),
     prisma.movie.findMany({
       take: 5,
       orderBy: { price: 'asc' },
+      include: { genres: true },
     }),
   ]);
   return (
     <main className="container mx-auto py-10 space-y-12">
-      <h1 className="text-4xl font-bold text-center">MovieShop</h1>
-
-      <MovieSection title="Most Purchased" movies={mostPurchased} />
-      <MovieSection title="New Releases" movies={mostRecent} />
+      <MovieSection title="Most Purchased" movies={mostPurchased} priority={true} />
+      <MovieSection title="New Releases" movies={mostRecent} priority={true} />
       <MovieSection title="Classic Hits" movies={oldest} />
       <MovieSection title="Best Deals" movies={cheapest} />
     </main>
@@ -34,13 +36,13 @@ export default async function LandingPage() {
 }
 
 // Simple wrapper for the sections
-function MovieSection({ title, movies }: { title: string; movies: any[] }) {
+function MovieSection({ title, movies, priority = false }: { title: string; movies: any[]; priority?: boolean }) {
   return (
     <section>
-      <h2 className="text-2xl font-semibold mb-4 border-b pb-2">{title}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        {movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
+      <h2 className="text-2xl font-semibold mb-4">{title}</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        {movies.map((movie, index) => (
+          <MovieCard key={movie.id} movie={movie} priority={priority && index < 5} />
         ))}
       </div>
     </section>
