@@ -1,3 +1,6 @@
+/**
+ * This code was added today
+ */
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminLoading() {
