@@ -1,13 +1,25 @@
 import MovieCard from '@/components/MovieCard';
 import { prisma } from '@/lib/prisma';
 
+type LandingMovie = {
+  id: string;
+  title: string;
+  price: number;
+  imageUrl: string | null;
+  releaseDate: Date;
+  description: string;
+  genres: { id: string; name: string }[];
+};
+
 export default async function LandingPage() {
-  // Fetching the 4 categories required by the spec
-  const [mostPurchased, mostRecent, oldest, cheapest] = await Promise.all([
-    prisma.movie.findMany({
+  // Fetching the 4 categories required by the spec.
+  // "Most Purchased" is ranked by summed quantity sold.
+  const [mostPurchasedIds, mostRecent, oldest, cheapest] = await Promise.all([
+    prisma.orderItem.groupBy({
+      by: ['movieId'],
+      _sum: { quantity: true },
+      orderBy: { _sum: { quantity: 'desc' } },
       take: 5,
-      orderBy: { orderItems: { _count: 'desc' } },
-      include: { genres: true },
     }),
     prisma.movie.findMany({
       take: 5,
@@ -25,6 +37,9 @@ export default async function LandingPage() {
       include: { genres: true },
     }),
   ]);
+
+  const mostPurchased = await getMostPurchasedMovies(mostPurchasedIds);
+
   return (
     <main className="container mx-auto py-10 space-y-12">
       <MovieSection title="Most Purchased" movies={mostPurchased} priority={true} />
@@ -35,8 +50,49 @@ export default async function LandingPage() {
   );
 }
 
+async function getMostPurchasedMovies(
+  rankedIds: { movieId: string; _sum: { quantity: number | null } }[],
+): Promise<LandingMovie[]> {
+  if (rankedIds.length === 0) return [];
+
+  const ids = rankedIds.map((item) => item.movieId);
+  const movies = await prisma.movie.findMany({
+    where: { id: { in: ids } },
+    include: { genres: true },
+  });
+
+  const movieById = new Map(movies.map((movie) => [movie.id, movie]));
+  const orderedMovies: LandingMovie[] = [];
+
+  for (const id of ids) {
+    const movie = movieById.get(id);
+    if (movie) {
+      orderedMovies.push(movie);
+    }
+  }
+
+  return orderedMovies;
+}
+
 // Simple wrapper for the sections
-function MovieSection({ title, movies, priority = false }: { title: string; movies: any[]; priority?: boolean }) {
+function MovieSection({
+  title,
+  movies,
+  priority = false,
+}: {
+  title: string;
+  movies: LandingMovie[];
+  priority?: boolean;
+}) {
+  if (movies.length === 0) {
+    return (
+      <section>
+        <h2 className="text-2xl font-semibold mb-4">{title}</h2>
+        <p className="text-sm text-muted-foreground">No movies available in this section yet.</p>
+      </section>
+    );
+  }
+
   return (
     <section>
       <h2 className="text-2xl font-semibold mb-4">{title}</h2>

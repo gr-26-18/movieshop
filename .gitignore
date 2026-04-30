@@ -26,6 +26,8 @@
 *.txt
 *.log
 *.orig
+# This code was added today
+*.md
 # debug
 npm-debug.log*
 yarn-debug.log*
