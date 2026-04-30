@@ -43,7 +43,7 @@ const data = {
     },
     {
       title: "Shop",
-      url: "/movies",
+      url: "/",
       icon: ShoppingBag,
     },
   ],
