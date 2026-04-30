@@ -8,51 +8,94 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { RevenueChart } from "./_components/revenue-chart";
 
 function currencyFromCents(value: number): string {
   return `$${(value / 100).toFixed(2)}`;
 }
 
 export default async function AdminOverviewPage() {
-  const [moviesCount, ordersCount, revenueAggregate, recentOrders, topMovies] =
-    await Promise.all([
-      prisma.movie.count(),
-      prisma.order.count(),
-      prisma.order.aggregate({
-        _sum: {
-          totalAmount: true,
-        },
-      }),
-      prisma.order.findMany({
-        take: 5,
-        orderBy: { orderDate: "desc" },
-        include: {
-          orderItems: {
-            include: {
-              movie: {
-                select: { title: true },
-              },
+  // Get date for 7 days ago
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const [
+    moviesCount,
+    ordersCount,
+    revenueAggregate,
+    recentOrders,
+    topMovies,
+    chartOrders,
+  ] = await Promise.all([
+    prisma.movie.count(),
+    prisma.order.count(),
+    prisma.order.aggregate({
+      _sum: {
+        totalAmount: true,
+      },
+    }),
+    prisma.order.findMany({
+      take: 5,
+      orderBy: { orderDate: "desc" },
+      include: {
+        orderItems: {
+          include: {
+            movie: {
+              select: { title: true },
             },
           },
         },
-      }),
-      prisma.movie.findMany({
-        take: 5,
-        orderBy: {
-          orderItems: {
-            _count: "desc",
-          },
+      },
+    }),
+    prisma.movie.findMany({
+      take: 5,
+      orderBy: {
+        orderItems: {
+          _count: "desc",
         },
-        select: {
-          id: true,
-          title: true,
-          price: true,
-          _count: {
-            select: { orderItems: true },
-          },
+      },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        _count: {
+          select: { orderItems: true },
         },
-      }),
-    ]);
+      },
+    }),
+    prisma.order.findMany({
+      where: {
+        orderDate: {
+          gte: sevenDaysAgo,
+        },
+      },
+      select: {
+        orderDate: true,
+        totalAmount: true,
+      },
+      orderBy: {
+        orderDate: "asc",
+      },
+    }),
+  ]);
+
+  // Process data for the chart
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toISOString().split("T")[0];
+  });
+
+  const chartData = last7Days.map((date) => {
+    const dailyRevenue = chartOrders
+      .filter((o) => o.orderDate.toISOString().split("T")[0] === date)
+      .reduce((sum, o) => sum + o.totalAmount, 0);
+
+    return {
+      date: new Date(date).toLocaleDateString("en-US", { weekday: "short" }),
+      revenue: dailyRevenue / 100, // Convert to dollars
+    };
+  });
 
   const totalRevenue = revenueAggregate._sum.totalAmount ?? 0;
 
@@ -81,6 +124,12 @@ export default async function AdminOverviewPage() {
             {currencyFromCents(totalRevenue)}
           </p>
         </div>
+      </div>
+
+      {/* Revenue Chart Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Revenue Trend</h3>
+        <RevenueChart data={chartData} />
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
