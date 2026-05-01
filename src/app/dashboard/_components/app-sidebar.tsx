@@ -43,14 +43,14 @@ const data = {
     },
     {
       title: "Shop",
-      url: "/", // This code was added today
+      url: "/", // New added code
       icon: ShoppingBag,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "/dashboard/settings", // This code was added today
+      url: "/dashboard/settings", // New added code
       icon: Settings,
     },
     {

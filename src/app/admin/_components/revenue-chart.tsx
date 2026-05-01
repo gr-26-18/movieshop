@@ -1,5 +1,5 @@
 /**
- * This file was added today
+ * New added file
  */
 'use client';
 
@@ -37,12 +37,13 @@ export function RevenueChart({ data }: { data: RevenueData[] }) {
       <h3 className="mb-6 text-sm font-medium text-muted-foreground">
         Revenue (Last 7 Days)
       </h3>
-      <div className="h-[250px] w-full relative">
+      <div className="h-[250px] w-full relative min-h-[250px]">
         <ResponsiveContainer
           width="99%"
           height="100%"
           minHeight={0}
           minWidth={0}
+          debounce={1}
         >
           <BarChart
             data={data}
@@ -68,7 +69,8 @@ export function RevenueChart({ data }: { data: RevenueData[] }) {
               axisLine={false}
               tickFormatter={(value) => `${value} kr`}
               width={45}
-              tick={{ dx: -5 }}
+              tick={{ dx: -5, textAnchor: 'end' }}
+              aria-label="Revenue in SEK"
             />
             <Tooltip
               cursor={{ fill: '#f5f5f5' }}
@@ -78,7 +80,7 @@ export function RevenueChart({ data }: { data: RevenueData[] }) {
                 fontSize: '12px',
               }}
               formatter={(value: number) => [
-                `${value.toFixed(2)} kr`,
+                `${Number(value).toFixed(2)} kr`,
                 'Revenue',
               ]}
             />

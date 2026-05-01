@@ -1,5 +1,5 @@
 /**
- * This code was added today
+ * New added code
  */
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -11,9 +11,9 @@ export default function AdminLoading() {
         <Skeleton className="h-4 w-64" />
       </div>
 
-      {/* Summary Cards Skeleton */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Skeleton className="h-24 rounded-lg border" />
+             {/* Summary Cards Skeleton */}
+             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+               <Skeleton className="h-24 rounded-lg border" />
         <Skeleton className="h-24 rounded-lg border" />
         <Skeleton className="h-24 rounded-lg border" />
       </div>

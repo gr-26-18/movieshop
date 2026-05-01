@@ -1,5 +1,5 @@
 /**
- * This code was added today
+ * New added code
  */
 import { prisma } from "@/lib/prisma";
 import {
@@ -102,18 +102,18 @@ export default async function AdminOverviewPage() {
 
   const totalRevenue = revenueAggregate._sum.totalAmount ?? 0;
 
-  return (
-    <section className="space-y-10">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Sales Statistics</h2>
+   return (
+     <section className="space-y-10" aria-labelledby="admin-overview-title">
+       <div>
+         <h2 id="admin-overview-title" className="text-2xl font-bold tracking-tight">Sales Statistics</h2>
         <p className="text-sm text-muted-foreground">
           Real-time platform performance and sales metrics.
         </p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border bg-card p-4 shadow-sm">
+             {/* Summary Cards */}
+             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+               <div className="rounded-lg border bg-card p-4 shadow-sm">
           <p className="text-sm text-muted-foreground">Total Movies</p>
           <p className="mt-1 text-2xl font-semibold">{moviesCount}</p>
         </div>
