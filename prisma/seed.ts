@@ -218,7 +218,7 @@ async function main() {
     const created = await prisma.movie.create({
       data: {
         title: movie.title,
-        price: movie.price,
+        price: Math.round(movie.price * 100),
         imageUrl: movie.imageUrl,
         description: movie.description,
         releaseDate: new Date(`${movie.year}-01-01`),
@@ -241,7 +241,7 @@ async function main() {
     await prisma.order.create({
       data: {
         userId,
-        totalAmount: 47.97,
+        totalAmount: 4797,
         status: 'COMPLETED',
         orderItems: {
           create: [

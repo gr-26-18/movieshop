@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 
 interface MovieCardProps {
@@ -15,17 +16,17 @@ interface MovieCardProps {
 }
 
 export default function MovieCard({ movie, priority = false }: MovieCardProps) {
+  const priceLabel = `$${(movie.price / 100).toFixed(2)}`;
 
   return (
-    <div className="flex flex-col group cursor-pointer p-3 -m-3 rounded-2xl transition-all duration-300 hover:bg-slate-50 hover:shadow-xl hover:scale-105">
-      {/* Image Container */}
-      <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-slate-200">
+    <Link href={`/movie/${movie.id}`} className="flex flex-col group cursor-pointer p-3 -m-3 rounded-2xl transition-all duration-300 hover:bg-slate-50 hover:shadow-xl hover:scale-105">
+      <div className="relative w-full h-[420px] sm:h-[360px] lg:h-[300px] rounded-xl overflow-hidden mb-4 bg-slate-200">
         <Image
           src={movie.imageUrl || '/placeholder-movie.jpg'}
           alt={movie.title}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
           priority={priority}
         />
       </div>
@@ -38,7 +39,7 @@ export default function MovieCard({ movie, priority = false }: MovieCardProps) {
             {movie.title}
           </h3>
           <span className="font-bold text-sm shrink-0">
-            ${movie.price.toFixed(2)}
+            {priceLabel}
           </span>
         </div>
         
@@ -58,6 +59,6 @@ export default function MovieCard({ movie, priority = false }: MovieCardProps) {
           ))}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

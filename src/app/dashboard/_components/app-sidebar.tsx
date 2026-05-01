@@ -38,19 +38,19 @@ const data = {
     },
     {
       title: "My Movies",
-      url: "/movies",
+      url: "/dashboard",
       icon: Film,
     },
     {
       title: "Shop",
-      url: "/",
+      url: "/", // This code was added today
       icon: ShoppingBag,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings", // This code was added today
       icon: Settings,
     },
     {
