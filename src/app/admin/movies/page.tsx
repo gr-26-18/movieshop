@@ -9,7 +9,7 @@ type MoviesSearchParams = {
 };
 
 function currencyFromCents(value: number): string {
-  return `$${(value / 100).toFixed(2)}`;
+  return new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(value);
 }
 
 function toDateLabel(value: Date): string {
@@ -28,17 +28,17 @@ export default async function AdminMoviesPage({
   const whereClause = {
     ...(query
       ? {
-          title: {
-            contains: query,
-            mode: "insensitive" as const,
-          },
-        }
+        title: {
+          contains: query,
+          mode: "insensitive" as const,
+        },
+      }
       : {}),
     ...(stockFilter === "in"
       ? { stock: { gt: 0 } }
       : stockFilter === "out"
-      ? { stock: 0 }
-      : {}),
+        ? { stock: 0 }
+        : {}),
   };
 
   const movies = await prisma.movie.findMany({

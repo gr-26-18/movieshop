@@ -16,7 +16,7 @@ interface MovieCardProps {
 }
 
 export default function MovieCard({ movie, priority = false }: MovieCardProps) {
-  const priceLabel = `$${(movie.price / 100).toFixed(2)}`;
+  const priceLabel = new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(movie.price);
 
   return (
     <Link href={`/movie/${movie.id}`} className="flex flex-col group cursor-pointer p-3 -m-3 rounded-2xl transition-all duration-300 hover:bg-slate-50 hover:shadow-xl hover:scale-105">
@@ -42,7 +42,7 @@ export default function MovieCard({ movie, priority = false }: MovieCardProps) {
             {priceLabel}
           </span>
         </div>
-        
+
         {/* Year Row */}
         <div className="flex justify-between items-center mb-3">
           <span className="text-sm text-muted-foreground font-medium">
