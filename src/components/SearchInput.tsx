@@ -26,7 +26,7 @@ export default function SearchInput() {
   }
 
   return (
-    <div className="relative w-full">
+    <form onSubmit={(e) => e.preventDefault()} className="relative w-full">
       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
       <Input
         type="search"
@@ -39,6 +39,6 @@ export default function SearchInput() {
       {isPending && (
         <div className="absolute right-3 top-2.5 h-4 w-4 animate-spin rounded-full border-2 border-purple-500 border-t-transparent" />
       )}
-    </div>
+    </form>
   );
 }
