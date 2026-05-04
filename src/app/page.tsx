@@ -26,14 +26,27 @@ export default async function LandingPage({
       },
       include: { genres: true },
     });
+
     return (
       <main className="container mx-auto py-8">
         <h1 className="text-2xl font-bold mb-6">Results for "{q}"</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {searchResults.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
-          ))}
-        </div>
+
+        {searchResults.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {searchResults.map((movie) => (
+              <MovieCard key={movie.id} movie={movie} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-xl text-muted-foreground">
+              Oops! No movies found matching "{q}".
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Try searching for something else!
+            </p>
+          </div>
+        )}
       </main>
     );
   }
