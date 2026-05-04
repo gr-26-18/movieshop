@@ -443,7 +443,7 @@ async function main() {
         data: {
           movieId: created.id,
           personId: personMap.get(credit.name),
-          role: credit.role, // 'DIRECTOR' or 'ACTOR'
+          role: credit.role as 'DIRECTOR' | 'ACTOR', // 'DIRECTOR' or 'ACTOR'
         },
       });
     }
