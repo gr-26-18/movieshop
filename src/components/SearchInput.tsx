@@ -14,9 +14,9 @@ export default function SearchInput() {
     const params = new URLSearchParams(searchParams);
 
     if (term) {
-      params.set('query', term);
+      params.set('q', term);
     } else {
-      params.delete('query');
+      params.delete('q');
     }
 
     // startTransition keeps the UI responsive while the data fetches
@@ -32,7 +32,7 @@ export default function SearchInput() {
         type="search"
         placeholder="Search movies..."
         className="w-full bg-slate-50 border-none pl-9 rounded-full h-9 focus-visible:ring-1 focus-visible:ring-purple-500"
-        defaultValue={searchParams.get('query')?.toString()}
+        defaultValue={searchParams.get('q')?.toString()}
         onChange={(e) => handleSearch(e.target.value)}
       />
       {/* Small loading indicator if the database is thinking */}

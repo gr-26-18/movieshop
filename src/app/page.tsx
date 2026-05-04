@@ -14,21 +14,21 @@ type LandingMovie = {
 export default async function LandingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ query?: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
-  const { query } = await searchParams;
+  const { q } = await searchParams;
 
   // 1. If searching, just get the filtered list
-  if (query) {
+  if (q && q.trim() !== '') {
     const searchResults = await prisma.movie.findMany({
       where: {
-        title: { contains: query, mode: 'insensitive' },
+        title: { contains: q.trim(), mode: 'insensitive' },
       },
       include: { genres: true },
     });
     return (
       <main className="container mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6">Results for "{query}"</h1>
+        <h1 className="text-2xl font-bold mb-6">Results for "{q}"</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {searchResults.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
