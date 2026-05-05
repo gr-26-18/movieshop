@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/button';
 import { MovieThumbnail } from './_components/movie-thumbnail';
+import { formatPrice } from '@/lib/utils';
 
 import { OrderDetailsSheet } from './_components/order-details';
 /* DASHBOARD PAGE COMPONENT
@@ -68,7 +69,7 @@ export default async function DashboardPage({
         </div>
         <div className="rounded-lg border bg-white p-6">
           <p className="text-sm text-gray-500">Total Spent</p>
-          <p className="text-2xl font-bold">{totalSpent.toFixed(2)} kr</p>
+          <p className="text-2xl font-bold">{formatPrice(totalSpent)}</p>
         </div>
         <div className="rounded-lg border bg-white p-6">
           <p className="text-sm text-gray-500">Pending Orders</p>
@@ -99,7 +100,7 @@ export default async function DashboardPage({
                   </div>
                   <div className="text-right">
                     <p className="text-xl font-bold">
-                      {order.totalAmount.toFixed(2)} kr
+                      {formatPrice(order.totalAmount)}
                     </p>
                     <Link
                       className="text-sm text-blue-600 hover:underline"
@@ -123,7 +124,7 @@ export default async function DashboardPage({
                             {item.movie.title} x{item.quantity}
                           </span>
                           <span className="font-semibold">
-                            ${item.priceAtPurchase.toFixed(2)}
+                            {formatPrice(item.priceAtPurchase)}
                           </span>
                         </li>
                       ))}

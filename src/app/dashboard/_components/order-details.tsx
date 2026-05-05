@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
+import {Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle} from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Package, MapPin, CreditCard, ShoppingBag } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
@@ -47,6 +41,7 @@ export function OrderDetailsSheet({ order }: OrderDetailsProps) {
         </SheetHeader>
 
         <div className="mt-8 space-y-6">
+          
           {/* INFO SECTION */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
