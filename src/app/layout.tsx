@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+// Added 2026-05-05:
+// Use route-aware shell wrapper to stabilize global Header/Footer behavior.
 import LayoutShell from "@/components/layout-shell";
 import "./globals.css";
 
@@ -29,6 +31,7 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      {/* Added 2026-05-05: wrapped app content in LayoutShell (client-side path-aware shell). */}
       <body className="min-h-full flex flex-col p-4" suppressHydrationWarning>
         <LayoutShell>{children}</LayoutShell>
       </body>

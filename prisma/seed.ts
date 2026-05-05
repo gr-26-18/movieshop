@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/prisma';
+// Added 2026-05-05:
+// Explicit typing helps avoid implicit any[] warnings for createdMovies.
 import type { Movie } from '@/generated/prisma/client';
 import 'dotenv/config';
 
@@ -407,6 +409,8 @@ async function main() {
   ];
 
   // 3. Insert Movies, Persons, and Credits
+  // Added 2026-05-05:
+  // Keep strongly typed movie array for downstream order creation and lint safety.
   const createdMovies: Movie[] = [];
 
   // Pre-create all unique persons to avoid duplicates
@@ -428,6 +432,8 @@ async function main() {
       data: {
         title: movie.title,
         price: movie.price,
+        // Added 2026-05-05:
+        // Persist seed stock so movies are not incorrectly created as out of stock.
         stock: movie.stock,
         imageUrl: movie.imageUrl,
         description: movie.description,

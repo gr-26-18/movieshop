@@ -21,7 +21,7 @@ export default function AdminLoading() {
       {/* Revenue Chart Skeleton */}
       <div className="space-y-4">
         <Skeleton className="h-6 w-32" />
-        <Skeleton className="h-[350px] w-full rounded-lg border" />
+        <Skeleton className="h-87.5 w-full rounded-lg border" />
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
