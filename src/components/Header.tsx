@@ -51,11 +51,11 @@ export default function Header() {
           <Link href="/dashboard">
             <Button
               variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-foreground rounded-full p-2"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground gap-2"
             >
-              <User className="h-5 w-5" />
-              <span className="sr-only">User Account</span>
+              <User className="h-4 w-4" />
+              <span>Dashboard</span>
             </Button>
           </Link>
         </div>

@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { headers } from "next/headers";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import LayoutShell from "@/components/layout-shell";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,10 +23,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headerList = await headers();
-  const pathname = headerList.get("x-pathname") || "";
-  const isDashboardOrAdmin = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
-
   return (
     <html
       lang="en"
@@ -36,11 +30,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col p-4" suppressHydrationWarning>
-        {!isDashboardOrAdmin && <Header />}
-        <div className="flex-1">
-          {children}
-        </div>
-        {!isDashboardOrAdmin && <Footer />}
+        <LayoutShell>{children}</LayoutShell>
       </body>
     </html>
   );

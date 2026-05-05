@@ -127,12 +127,20 @@ export default async function AdminMoviesPage({
                 <td className="px-4 py-3">{toDateLabel(movie.releaseDate)}</td>
                 <td className="px-4 py-3">{toDateLabel(movie.updatedAt)}</td>
                 <td className="px-4 py-3">
-                  <Link
-                    href={`/admin/movies/${movie.id}/edit`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Edit
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/movie/${movie.id}?from=admin-movies`}
+                      className="text-sm text-muted-foreground hover:underline"
+                    >
+                      View
+                    </Link>
+                    <Link
+                      href={`/admin/movies/${movie.id}/edit`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

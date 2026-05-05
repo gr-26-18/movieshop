@@ -38,7 +38,7 @@ const data = {
     },
     {
       title: "My Movies",
-      url: "/dashboard",
+      url: "/dashboard#order-history",
       icon: Film,
     },
     {

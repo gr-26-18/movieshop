@@ -28,26 +28,20 @@ export function RevenueChart({ data }: { data: RevenueData[] }) {
 
   if (!isMounted) {
     return (
-      <div className="h-[350px] w-full rounded-lg border bg-white p-6 shadow-sm animate-pulse" />
+      <div className="h-87.5 w-full rounded-lg border bg-white p-6 shadow-sm animate-pulse" />
     );
   }
 
   return (
-    <div className="h-[350px] w-full rounded-lg border bg-white p-6 shadow-sm">
+    <div className="h-87.5 w-full rounded-lg border bg-white p-6 shadow-sm">
       <h3 className="mb-6 text-sm font-medium text-muted-foreground">
         Revenue (Last 7 Days)
       </h3>
-      <div className="h-[250px] w-full relative min-h-[250px]">
-        <ResponsiveContainer
-          width="99%"
-          height="100%"
-          minHeight={0}
-          minWidth={0}
-          debounce={1}
-        >
+      <div className="w-full min-h-62.5">
+        <ResponsiveContainer width="100%" height={250} debounce={50}>
           <BarChart
             data={data}
-            margin={{ top: 0, right: 10, left: 10, bottom: 30 }}
+            margin={{ top: 0, right: 10, left: 10, bottom: 20 }}
           >
             <CartesianGrid
               strokeDasharray="3 3"
@@ -58,18 +52,20 @@ export function RevenueChart({ data }: { data: RevenueData[] }) {
               dataKey="date"
               stroke="#888888"
               fontSize={12}
+              interval={0}
+              minTickGap={0}
               tickLine={false}
               axisLine={{ stroke: '#e5e7eb' }}
-              dy={15}
+              tickMargin={10}
             />
             <YAxis
               stroke="#888888"
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `${value} kr`}
-              width={45}
-              tick={{ dx: -5, textAnchor: 'end' }}
+              tickFormatter={(value) => `${value}\u00A0kr`}
+              width={64}
+              tick={{ dx: -6, textAnchor: 'end' }}
               aria-label="Revenue in SEK"
             />
             <Tooltip

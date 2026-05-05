@@ -77,7 +77,7 @@ export default async function DashboardPage({
         </div>
       </div>
 
-      <div className="rounded-lg border bg-white">
+      <div id="order-history" className="rounded-lg border bg-white scroll-mt-24">
         <div className="border-b p-6">
           <h2 className="text-xl font-semibold">Order History</h2>
         </div>

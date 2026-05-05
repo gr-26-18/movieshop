@@ -13,8 +13,20 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { RevenueChart } from "./_components/revenue-chart";
 
+type OrderStatus = "PENDING" | "COMPLETED" | "CANCELLED";
+
 function currencyFromCents(value: number): string {
   return new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(value);
+}
+
+function getStatusBadgeClass(status: OrderStatus): string {
+  const styles: Record<OrderStatus, string> = {
+    PENDING: "border-amber-200 bg-amber-100 text-amber-800",
+    COMPLETED: "border-green-200 bg-green-100 text-green-800",
+    CANCELLED: "border-red-200 bg-red-100 text-red-800",
+  };
+
+  return styles[status];
 }
 
 export default async function AdminOverviewPage() {
@@ -82,21 +94,30 @@ export default async function AdminOverviewPage() {
     }),
   ]);
 
-  // Process data for the chart
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    return d.toISOString().split("T")[0];
-  });
+  // Build stable local date keys (YYYY-MM-DD) to avoid timezone edge cases.
+  const toLocalDateKey = (date: Date) => {
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, "0");
+    const day = `${date.getDate()}`.padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
-  const chartData = last7Days.map((date) => {
-    const dailyRevenue = chartOrders
-      .filter((o) => o.orderDate.toISOString().split("T")[0] === date)
-      .reduce((sum, o) => sum + o.totalAmount, 0);
+  // Aggregate order totals by local day.
+  const revenueByDate = chartOrders.reduce<Record<string, number>>((acc, order) => {
+    const key = toLocalDateKey(order.orderDate);
+    acc[key] = (acc[key] ?? 0) + order.totalAmount;
+    return acc;
+  }, {});
+
+  // Always return a full 7-day window, filling missing days with 0.
+  const chartData = Array.from({ length: 7 }, (_, i) => {
+    const dayDate = new Date();
+    dayDate.setDate(dayDate.getDate() - (6 - i));
+    const dayKey = toLocalDateKey(dayDate);
 
     return {
-      date: new Date(date).toLocaleDateString("en-US", { weekday: "short" }),
-      revenue: dailyRevenue, // Already in SEK
+      date: `${dayDate.toLocaleDateString("en-US", { weekday: "short" })} ${dayDate.getDate()}`,
+      revenue: revenueByDate[dayKey] ?? 0,
     };
   });
 
@@ -157,7 +178,10 @@ export default async function AdminOverviewPage() {
                       #{order.id.slice(-8)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="text-[10px] uppercase">
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] uppercase ${getStatusBadgeClass(order.status as OrderStatus)}`}
+                      >
                         {order.status}
                       </Badge>
                     </TableCell>

@@ -10,6 +10,16 @@ interface OrderDetailsProps {
   order: any // We'll keep it simple for now
 }
 
+function getStatusBadgeClass(status: "PENDING" | "COMPLETED" | "CANCELLED"): string {
+  const styles: Record<"PENDING" | "COMPLETED" | "CANCELLED", string> = {
+    PENDING: "border-amber-200 bg-amber-100 text-amber-800",
+    COMPLETED: "border-green-200 bg-green-100 text-green-800",
+    CANCELLED: "border-red-200 bg-red-100 text-red-800",
+  }
+
+  return styles[status]
+}
+
 export function OrderDetailsSheet({ order }: OrderDetailsProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -34,7 +44,7 @@ export function OrderDetailsSheet({ order }: OrderDetailsProps) {
             Order ID: <span className="font-mono text-foreground font-medium">{order.id}</span>
           </SheetDescription>
           <div className="flex items-center gap-2">
-            <Badge variant={order.status === "COMPLETED" ? "default" : "secondary"}>
+            <Badge variant="outline" className={getStatusBadgeClass(order.status)}>
               {order.status}
             </Badge>
           </div>
@@ -82,7 +92,7 @@ export function OrderDetailsSheet({ order }: OrderDetailsProps) {
             <div className="space-y-3">
               {order.orderItems.map((item: any) => (
                 <div key={item.id} className="flex items-center gap-3 bg-card p-2 rounded-md border shadow-sm">
-                  <div className="size-12 bg-muted rounded overflow-hidden flex-shrink-0 border">
+                  <div className="size-12 bg-muted rounded overflow-hidden shrink-0 border">
                     {item.movie.imageUrl ? (
                       <img src={item.movie.imageUrl} alt={item.movie.title} className="w-full h-full object-cover" />
                     ) : (
