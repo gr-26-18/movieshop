@@ -3,12 +3,23 @@ import { prisma } from '@/lib/prisma';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/lib/utils';
+import { redirect } from 'next/navigation';
+import { DeleteButton } from '@/app/admin/_components/delete-button';
 
 // Collaboration note:
 // - Initial admin movies page scaffold and table/filter flow added by samir .
 // - Stock filter/query polish and small consistency tweaks added by Aneela.
 // - "View" action link (context-aware back navigation)
 
+async function deleteMovie(id: string) {
+  'use server';
+
+  await prisma.movie.delete({
+    where: { id },
+  });
+
+  redirect('/admin/movies');
+}
 
 type MoviesSearchParams = {
   q?: string;
@@ -152,6 +163,10 @@ export default async function AdminMoviesPage({
                     >
                       Edit
                     </Link>
+
+                    <form action={deleteMovie.bind(null, movie.id)}>
+                      <DeleteButton />
+                    </form>
                   </div>
                 </td>
               </tr>
