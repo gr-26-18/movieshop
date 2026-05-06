@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { RevenueChart } from "./_components/revenue-chart";
 
 function currencyFromCents(value: number): string {
-  return `$${(value / 100).toFixed(2)}`;
+  return new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(value);
 }
 
 export default async function AdminOverviewPage() {

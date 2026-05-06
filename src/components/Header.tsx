@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Film, Search, ShoppingCart, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import SearchInput from './SearchInput';
 
 export default function Header() {
   return (
@@ -34,14 +35,7 @@ export default function Header() {
 
         {/* Center Section: Search */}
         <div className="flex-1 max-w-2xl px-6 hidden md:block">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search movies..."
-              className="w-full bg-slate-50 border-none pl-9 rounded-full h-9 focus-visible:ring-1 focus-visible:ring-purple-500"
-            />
-          </div>
+          <SearchInput />
         </div>
 
         {/* Right Section: Actions */}

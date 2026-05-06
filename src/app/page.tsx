@@ -11,7 +11,45 @@ type LandingMovie = {
   genres: { id: string; name: string }[];
 };
 
-export default async function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+
+  // 1. If searching, just get the filtered list
+  if (q && q.trim() !== '') {
+    const searchResults = await prisma.movie.findMany({
+      where: {
+        title: { contains: q.trim(), mode: 'insensitive' },
+      },
+      include: { genres: true },
+    });
+
+    return (
+      <main className="container mx-auto py-8">
+        <h1 className="text-2xl font-bold mb-6">Results for "{q}"</h1>
+
+        {searchResults.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {searchResults.map((movie) => (
+              <MovieCard key={movie.id} movie={movie} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-xl text-muted-foreground">
+              Oops! No movies found matching "{q}".
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Try searching for something else!
+            </p>
+          </div>
+        )}
+      </main>
+    );
+  }
   // Fetching the 4 categories required by the spec.
   // "Most Purchased" is ranked by summed quantity sold.
   const [mostPurchasedIds, mostRecent, oldest, cheapest] = await Promise.all([
@@ -42,7 +80,11 @@ export default async function LandingPage() {
 
   return (
     <main className="container mx-auto py-10 space-y-12">
-      <MovieSection title="Most Purchased" movies={mostPurchased} priority={true} />
+      <MovieSection
+        title="Most Purchased"
+        movies={mostPurchased}
+        priority={true}
+      />
       <MovieSection title="New Releases" movies={mostRecent} priority={true} />
       <MovieSection title="Classic Hits" movies={oldest} />
       <MovieSection title="Best Deals" movies={cheapest} />
@@ -88,7 +130,9 @@ function MovieSection({
     return (
       <section>
         <h2 className="text-2xl font-semibold mb-4">{title}</h2>
-        <p className="text-sm text-muted-foreground">No movies available in this section yet.</p>
+        <p className="text-sm text-muted-foreground">
+          No movies available in this section yet.
+        </p>
       </section>
     );
   }
@@ -98,7 +142,11 @@ function MovieSection({
       <h2 className="text-2xl font-semibold mb-4">{title}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {movies.map((movie, index) => (
-          <MovieCard key={movie.id} movie={movie} priority={priority && index < 5} />
+          <MovieCard
+            key={movie.id}
+            movie={movie}
+            priority={priority && index < 5}
+          />
         ))}
       </div>
     </section>

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { formatPrice } from '@/lib/utils';
 
 interface MovieCardProps {
   movie: {
@@ -16,10 +17,11 @@ interface MovieCardProps {
 }
 
 export default function MovieCard({ movie, priority = false }: MovieCardProps) {
-  const priceLabel = `$${(movie.price / 100).toFixed(2)}`;
-
   return (
-    <Link href={`/movie/${movie.id}`} className="flex flex-col group cursor-pointer p-3 -m-3 rounded-2xl transition-all duration-300 hover:bg-slate-50 hover:shadow-xl hover:scale-105">
+    <Link
+      href={`/movie/${movie.id}`}
+      className="flex flex-col group cursor-pointer p-3 -m-3 rounded-2xl transition-all duration-300 hover:bg-slate-50 hover:shadow-xl hover:scale-105"
+    >
       <div className="relative w-full h-[420px] sm:h-[360px] lg:h-[300px] rounded-xl overflow-hidden mb-4 bg-slate-200">
         <Image
           src={movie.imageUrl || '/placeholder-movie.jpg'}
@@ -39,10 +41,10 @@ export default function MovieCard({ movie, priority = false }: MovieCardProps) {
             {movie.title}
           </h3>
           <span className="font-bold text-sm shrink-0">
-            {priceLabel}
+            {formatPrice(movie.price)}
           </span>
         </div>
-        
+
         {/* Year Row */}
         <div className="flex justify-between items-center mb-3">
           <span className="text-sm text-muted-foreground font-medium">
@@ -53,7 +55,11 @@ export default function MovieCard({ movie, priority = false }: MovieCardProps) {
         {/* Tags Row */}
         <div className="flex flex-wrap gap-2 mt-auto">
           {movie.genres?.map((genre) => (
-            <Badge key={genre.id} variant="secondary" className="text-[10px] px-2 py-0 rounded-md font-semibold bg-muted hover:bg-muted text-muted-foreground shadow-none">
+            <Badge
+              key={genre.id}
+              variant="secondary"
+              className="text-[10px] px-2 py-0 rounded-md font-semibold bg-muted hover:bg-muted text-muted-foreground shadow-none"
+            >
               {genre.name}
             </Badge>
           ))}

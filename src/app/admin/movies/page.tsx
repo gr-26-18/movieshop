@@ -17,12 +17,8 @@ async function deleteMovie(id: string) {
 
 type MoviesSearchParams = {
   q?: string;
-  stock?: "all" | "in" | "out";
+  stock?: 'all' | 'in' | 'out';
 };
-
-function currencyFromCents(value: number): string {
-  return `$${(value / 100).toFixed(2)}`;
-}
 
 function toDateLabel(value: Date): string {
   return value.toLocaleDateString();
@@ -34,28 +30,28 @@ export default async function AdminMoviesPage({
   searchParams: Promise<MoviesSearchParams>;
 }) {
   const params = await searchParams;
-  const query = params.q?.trim() ?? "";
-  const stockFilter = params.stock ?? "all";
+  const query = params.q?.trim() ?? '';
+  const stockFilter = params.stock ?? 'all';
 
   const whereClause = {
     ...(query
       ? {
           title: {
             contains: query,
-            mode: "insensitive" as const,
+            mode: 'insensitive' as const,
           },
         }
       : {}),
-    ...(stockFilter === "in"
+    ...(stockFilter === 'in'
       ? { stock: { gt: 0 } }
-      : stockFilter === "out"
-      ? { stock: 0 }
-      : {}),
+      : stockFilter === 'out'
+        ? { stock: 0 }
+        : {}),
   };
 
   const movies = await prisma.movie.findMany({
     where: whereClause,
-    orderBy: { updatedAt: "desc" },
+    orderBy: { updatedAt: 'desc' },
     take: 20,
     select: {
       id: true,
@@ -110,7 +106,7 @@ export default async function AdminMoviesPage({
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span>Showing {movies.length} result(s)</span>
         {query ? <Badge variant="outline">query: {query}</Badge> : null}
-        {stockFilter !== "all" ? (
+        {stockFilter !== 'all' ? (
           <Badge variant="outline">stock: {stockFilter}</Badge>
         ) : null}
       </div>
@@ -131,7 +127,7 @@ export default async function AdminMoviesPage({
             {movies.map((movie) => (
               <tr key={movie.id}>
                 <td className="px-4 py-3">{movie.title}</td>
-                <td className="px-4 py-3">{currencyFromCents(movie.price)}</td>
+                <td className="px-4 py-3">{formatPrice(movie.price)}</td>
                 <td className="px-4 py-3">
                   {movie.stock > 0 ? (
                     <Badge variant="outline">{movie.stock}</Badge>
