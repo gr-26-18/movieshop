@@ -4,8 +4,15 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/lib/utils';
 
+// Collaboration note:
+// - Initial admin movies page scaffold and table/filter flow added by samir .
+// - Stock filter/query polish and small consistency tweaks added by Aneela.
+// - "View" action link (context-aware back navigation)
+
+
 type MoviesSearchParams = {
   q?: string;
+  // Added by Aneela
   stock?: 'all' | 'in' | 'out';
 };
 
@@ -19,6 +26,7 @@ export default async function AdminMoviesPage({
   searchParams: Promise<MoviesSearchParams>;
 }) {
   const params = await searchParams;
+  // Added by Aneela 
   const query = params.q?.trim() ?? '';
   const stockFilter = params.stock ?? 'all';
 
@@ -27,6 +35,7 @@ export default async function AdminMoviesPage({
       ? {
           title: {
             contains: query,
+            // Added by Aneela 
             mode: 'insensitive' as const,
           },
         }
@@ -40,6 +49,7 @@ export default async function AdminMoviesPage({
 
   const movies = await prisma.movie.findMany({
     where: whereClause,
+    // Added by Aneela 
     orderBy: { updatedAt: 'desc' },
     take: 20,
     select: {
@@ -67,6 +77,7 @@ export default async function AdminMoviesPage({
         >
           New Movie
         </Link>
+   
       </div>
 
       <form className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
@@ -128,6 +139,7 @@ export default async function AdminMoviesPage({
                 <td className="px-4 py-3">{toDateLabel(movie.updatedAt)}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
+                    {/* Added by Samir (2026-05-05): view page link with admin context query. */}
                     <Link
                       href={`/movie/${movie.id}?from=admin-movies`}
                       className="text-sm text-muted-foreground hover:underline"
