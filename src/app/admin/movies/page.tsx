@@ -1,8 +1,19 @@
-import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { formatPrice } from '@/lib/utils';
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { redirect } from "next/navigation";
+import { DeleteButton } from "@/app/admin/_components/delete-button";
+
+async function deleteMovie(id: string) {
+  "use server";
+
+  await prisma.movie.delete({
+    where: { id },
+  });
+
+  redirect("/admin/movies");
+}
 
 // Collaboration note:
 // - Initial admin movies page scaffold and table/filter flow added by samir .
@@ -138,20 +149,17 @@ export default async function AdminMoviesPage({
                 <td className="px-4 py-3">{toDateLabel(movie.releaseDate)}</td>
                 <td className="px-4 py-3">{toDateLabel(movie.updatedAt)}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    {/* Added by Samir (2026-05-05): view page link with admin context query. */}
-                    <Link
-                      href={`/movie/${movie.id}?from=admin-movies`}
-                      className="text-sm text-muted-foreground hover:underline"
-                    >
-                      View
-                    </Link>
+                  <div className="flex gap-2">
                     <Link
                       href={`/admin/movies/${movie.id}/edit`}
                       className="text-blue-600 hover:underline"
                     >
                       Edit
                     </Link>
+
+                    <form action={deleteMovie.bind(null, movie.id)}>
+                      <DeleteButton />
+                    </form>
                   </div>
                 </td>
               </tr>
