@@ -19,6 +19,9 @@ export default async function AdminLayout({
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <h1 className="text-base font-semibold">Admin</h1>
           <nav className="flex items-center gap-4 text-sm">
+            <Link href="/" className="hover:underline">
+              Back to Store
+            </Link>
             <Link href="/admin" className="hover:underline">
               Overview
             </Link>

@@ -1,6 +1,13 @@
 import { prisma } from '@/lib/prisma';
+// Added 2026-05-05:
+// Explicit typing helps avoid implicit any[] warnings for createdMovies.
+import type { Movie } from '@/generated/prisma/client';
 import 'dotenv/config';
 
+/**
+ * Updated on 2026-05-05:
+ * Added deterministic multi-day demo orders for Admin Revenue Trend testing.
+ */
 async function main() {
   console.log('Starting fresh seed with 20 movies and all related tables...');
 
@@ -402,7 +409,9 @@ async function main() {
   ];
 
   // 3. Insert Movies, Persons, and Credits
-  const createdMovies = [];
+  // Added 2026-05-05:
+  // Keep strongly typed movie array for downstream order creation and lint safety.
+  const createdMovies: Movie[] = [];
 
   // Pre-create all unique persons to avoid duplicates
   // Map over `credits` instead of `directors` and `cast`
@@ -423,6 +432,9 @@ async function main() {
       data: {
         title: movie.title,
         price: movie.price,
+        // Added 2026-05-05:
+        // Persist seed stock so movies are not incorrectly created as out of stock.
+        stock: movie.stock,
         imageUrl: movie.imageUrl,
         description: movie.description,
         releaseDate: movie.releaseDate, // FIXED: Was creating an invalid Date object
@@ -456,46 +468,82 @@ async function main() {
 
   // Verify we actually have movies before trying to use their IDs
   if (createdMovies.length >= 5) {
-    await prisma.order.create({
-      data: {
-        userId,
-        totalAmount: 762,
-        status: 'COMPLETED',
-        orderItems: {
-          create: [
-            {
-              movieId: createdMovies[0].id,
-              quantity: 1,
-              priceAtPurchase: createdMovies[0].price,
-            },
-            {
-              movieId: createdMovies[1].id,
-              quantity: 1,
-              priceAtPurchase: createdMovies[1].price,
-            },
-            {
-              movieId: createdMovies[2].id,
-              quantity: 1,
-              priceAtPurchase: createdMovies[2].price,
-            },
-            {
-              movieId: createdMovies[3].id,
-              quantity: 1,
-              priceAtPurchase: createdMovies[3].price,
-            },
-            {
-              movieId: createdMovies[4].id,
-              quantity: 1,
-              priceAtPurchase: createdMovies[4].price,
-            },
-          ],
-        },
+    // Added 2026-05-05:
+    // Seed completed orders across multiple recent days so Admin "Revenue Trend"
+    // shows a realistic 7-day, calculation-driven chart for everyone after seeding.
+    const orderDateDaysAgo = (daysAgo: number) => {
+      const date = new Date();
+      date.setHours(12, 0, 0, 0);
+      date.setDate(date.getDate() - daysAgo);
+      return date;
+    };
+
+    const seededOrderPlans = [
+      {
+        // Preserves the original total (762 kr) but places it on a recent day.
+        daysAgo: 1,
+        status: 'COMPLETED' as const,
+        items: [
+          { movieIndex: 0, quantity: 1 },
+          { movieIndex: 1, quantity: 1 },
+          { movieIndex: 2, quantity: 1 },
+          { movieIndex: 3, quantity: 1 },
+          { movieIndex: 4, quantity: 1 },
+        ],
       },
-    });
+      {
+        daysAgo: 2,
+        status: 'PENDING' as const,
+        items: [
+          { movieIndex: 2, quantity: 2 },
+        ],
+      },
+      {
+        daysAgo: 4,
+        status: 'CANCELLED' as const,
+        items: [
+          { movieIndex: 3, quantity: 1 },
+          { movieIndex: 4, quantity: 1 },
+        ],
+      },
+      {
+        daysAgo: 6,
+        status: 'COMPLETED' as const,
+        items: [
+          { movieIndex: 5, quantity: 1 },
+          { movieIndex: 0, quantity: 1 },
+        ],
+      },
+    ] as const;
+
+    for (const plan of seededOrderPlans) {
+      const orderItems = plan.items.map((item) => ({
+        movieId: createdMovies[item.movieIndex].id,
+        quantity: item.quantity,
+        priceAtPurchase: createdMovies[item.movieIndex].price,
+      }));
+
+      const totalAmount = orderItems.reduce(
+        (sum, item) => sum + item.quantity * item.priceAtPurchase,
+        0,
+      );
+
+      await prisma.order.create({
+        data: {
+          userId,
+          totalAmount,
+          status: plan.status,
+          orderDate: orderDateDaysAgo(plan.daysAgo),
+          orderItems: {
+            create: orderItems,
+          },
+        },
+      });
+    }
   }
 
   console.log(
-    `Successfully seeded ${createdMovies.length} movies with persons and credits!`,
+    `Successfully seeded ${createdMovies.length} movies with persons, credits, and multi-day demo orders!`,
   );
 }
 

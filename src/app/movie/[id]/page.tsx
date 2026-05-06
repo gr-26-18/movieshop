@@ -6,8 +6,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Clock, Calendar, Star, ShoppingCart } from 'lucide-react';
 
-export default async function MovieDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function MovieDetailsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
+}) {
   const { id } = await params;
+  const query = await searchParams;
+  const backHref = query.from === 'admin-movies' ? '/admin/movies' : '/';
 
   const movie = await prisma.movie.findUnique({
     where: { id },
@@ -54,7 +62,7 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
       {/* Back Button */}
       <div className="mb-8">
         <Button variant="ghost" asChild className="pl-0 hover:bg-transparent flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-          <Link href="/">
+          <Link href={backHref}>
             <ArrowLeft className="w-4 h-4" />
             Back
           </Link>
@@ -63,7 +71,7 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-12 items-start">
         {/* Left Column: Poster */}
-        <div className="relative w-full aspect-[2/3] max-w-md mx-auto lg:mx-0 rounded-2xl overflow-hidden shadow-2xl bg-slate-200">
+        <div className="relative w-full aspect-2/3 max-w-md mx-auto lg:mx-0 rounded-2xl overflow-hidden shadow-2xl bg-slate-200">
           <Image
             src={movie.imageUrl || '/placeholder-movie.jpg'}
             alt={movie.title}

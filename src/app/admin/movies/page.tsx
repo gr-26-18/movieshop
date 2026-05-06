@@ -15,8 +15,15 @@ async function deleteMovie(id: string) {
   redirect("/admin/movies");
 }
 
+// Collaboration note:
+// - Initial admin movies page scaffold and table/filter flow added by samir .
+// - Stock filter/query polish and small consistency tweaks added by Aneela.
+// - "View" action link (context-aware back navigation)
+
+
 type MoviesSearchParams = {
   q?: string;
+  // Added by Aneela
   stock?: 'all' | 'in' | 'out';
 };
 
@@ -30,6 +37,7 @@ export default async function AdminMoviesPage({
   searchParams: Promise<MoviesSearchParams>;
 }) {
   const params = await searchParams;
+  // Added by Aneela 
   const query = params.q?.trim() ?? '';
   const stockFilter = params.stock ?? 'all';
 
@@ -38,6 +46,7 @@ export default async function AdminMoviesPage({
       ? {
           title: {
             contains: query,
+            // Added by Aneela 
             mode: 'insensitive' as const,
           },
         }
@@ -51,6 +60,7 @@ export default async function AdminMoviesPage({
 
   const movies = await prisma.movie.findMany({
     where: whereClause,
+    // Added by Aneela 
     orderBy: { updatedAt: 'desc' },
     take: 20,
     select: {
@@ -78,6 +88,7 @@ export default async function AdminMoviesPage({
         >
           New Movie
         </Link>
+   
       </div>
 
       <form className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
