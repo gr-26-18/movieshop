@@ -2,6 +2,18 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { redirect } from "next/navigation";
+import { DeleteButton } from "@/app/admin/_components/delete-button";
+
+async function deleteMovie(id: string) {
+  "use server";
+
+  await prisma.movie.delete({
+    where: { id },
+  });
+
+  redirect("/admin/movies");
+}
 
 type MoviesSearchParams = {
   q?: string;
@@ -130,12 +142,18 @@ export default async function AdminMoviesPage({
                 <td className="px-4 py-3">{toDateLabel(movie.releaseDate)}</td>
                 <td className="px-4 py-3">{toDateLabel(movie.updatedAt)}</td>
                 <td className="px-4 py-3">
-                  <Link
-                    href={`/admin/movies/${movie.id}/edit`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Edit
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/admin/movies/${movie.id}/edit`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </Link>
+
+                    <form action={deleteMovie.bind(null, movie.id)}>
+                      <DeleteButton />
+                    </form>
+                  </div>
                 </td>
               </tr>
             ))}
