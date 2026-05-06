@@ -1,14 +1,14 @@
 /**
- * This file was added today
+ * New added file
  */
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function SettingsPage() {
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Account Settings</h1>
+   return (
+     <div className="space-y-8" aria-labelledby="settings-title">
+       <div>
+         <h1 id="settings-title" className="text-3xl font-bold tracking-tight mb-2">Account Settings</h1>
         <p className="text-muted-foreground">
           Manage your account information and preferences.
         </p>
