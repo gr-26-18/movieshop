@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { Film, Search, ShoppingCart, User } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Film, ShoppingCart, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Suspense } from 'react';
 import SearchInput from './SearchInput';
 
 export default function Header() {
@@ -35,7 +35,13 @@ export default function Header() {
 
         {/* Center Section: Search */}
         <div className="flex-1 max-w-2xl px-6 hidden md:block">
-          <SearchInput />
+          <Suspense
+            fallback={
+              <div className="h-9 w-full rounded-full bg-slate-100" />
+            }
+          >
+            <SearchInput />
+          </Suspense>
         </div>
 
         {/* Right Section: Actions */}

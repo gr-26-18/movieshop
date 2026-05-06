@@ -75,10 +75,18 @@ export function RevenueChart({ data }: { data: RevenueData[] }) {
                 border: '1px solid #e5e7eb',
                 fontSize: '12px',
               }}
-              formatter={(value: number) => [
-                `${Number(value).toFixed(2)} kr`,
-                'Revenue',
-              ]}
+              formatter={(value) => {
+                const numericValue =
+                  typeof value === 'number'
+                    ? value
+                    : typeof value === 'string'
+                      ? Number(value) || 0
+                      : Array.isArray(value)
+                        ? Number(value[0]) || 0
+                        : 0;
+
+                return [`${numericValue.toFixed(2)} kr`, 'Revenue'];
+              }}
             />
             <Bar
               dataKey="revenue"
