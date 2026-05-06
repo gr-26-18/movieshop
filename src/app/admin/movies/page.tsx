@@ -15,17 +15,18 @@ async function deleteMovie(id: string) {
   redirect("/admin/movies");
 }
 
-// Collaboration note:
-// - Initial admin movies page scaffold and table/filter flow added by samir .
-// - Stock filter/query polish and small consistency tweaks added by Aneela.
-// - "View" action link (context-aware back navigation)
-
-
 type MoviesSearchParams = {
   q?: string;
-  // Added by Aneela
-  stock?: 'all' | 'in' | 'out';
+  stock?: "all" | "in" | "out";
 };
+
+function currencyFromCents(value: number): string {
+  return new Intl.NumberFormat("sv-SE", {
+    style: "currency",
+    currency: "SEK",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 function toDateLabel(value: Date): string {
   return value.toLocaleDateString();
@@ -37,31 +38,28 @@ export default async function AdminMoviesPage({
   searchParams: Promise<MoviesSearchParams>;
 }) {
   const params = await searchParams;
-  // Added by Aneela 
-  const query = params.q?.trim() ?? '';
-  const stockFilter = params.stock ?? 'all';
+  const query = params.q?.trim() ?? "";
+  const stockFilter = params.stock ?? "all";
 
   const whereClause = {
     ...(query
       ? {
           title: {
             contains: query,
-            // Added by Aneela 
-            mode: 'insensitive' as const,
+            mode: "insensitive" as const,
           },
         }
       : {}),
-    ...(stockFilter === 'in'
+    ...(stockFilter === "in"
       ? { stock: { gt: 0 } }
-      : stockFilter === 'out'
-        ? { stock: 0 }
-        : {}),
+      : stockFilter === "out"
+      ? { stock: 0 }
+      : {}),
   };
 
   const movies = await prisma.movie.findMany({
     where: whereClause,
-    // Added by Aneela 
-    orderBy: { updatedAt: 'desc' },
+    orderBy: { updatedAt: "desc" },
     take: 20,
     select: {
       id: true,
@@ -88,7 +86,6 @@ export default async function AdminMoviesPage({
         >
           New Movie
         </Link>
-   
       </div>
 
       <form className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
@@ -117,7 +114,7 @@ export default async function AdminMoviesPage({
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span>Showing {movies.length} result(s)</span>
         {query ? <Badge variant="outline">query: {query}</Badge> : null}
-        {stockFilter !== 'all' ? (
+        {stockFilter !== "all" ? (
           <Badge variant="outline">stock: {stockFilter}</Badge>
         ) : null}
       </div>
@@ -138,7 +135,7 @@ export default async function AdminMoviesPage({
             {movies.map((movie) => (
               <tr key={movie.id}>
                 <td className="px-4 py-3">{movie.title}</td>
-                <td className="px-4 py-3">{formatPrice(movie.price)}</td>
+                <td className="px-4 py-3">{currencyFromCents(movie.price)}</td>
                 <td className="px-4 py-3">
                   {movie.stock > 0 ? (
                     <Badge variant="outline">{movie.stock}</Badge>
@@ -156,7 +153,6 @@ export default async function AdminMoviesPage({
                     >
                       Edit
                     </Link>
-
                     <form action={deleteMovie.bind(null, movie.id)}>
                       <DeleteButton />
                     </form>
