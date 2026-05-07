@@ -11,12 +11,7 @@ async function createMovie(formData: FormData) {
   const releaseDate = new Date(formData.get("releaseDate") as string);
   const imageUrl = formData.get("imageUrl") as string;
 
-  const genresInput = formData.get("genres") as string;
-
-  const genres = genresInput
-    .split(",")
-    .map((g) => g.trim())
-    .filter(Boolean);
+  const genreIds = formData.getAll("genreIds") as string[];
 
   await prisma.movie.create({
     data: {
@@ -27,10 +22,7 @@ async function createMovie(formData: FormData) {
       releaseDate,
       imageUrl,
       genres: {
-        connectOrCreate: genres.map((name) => ({
-          where: { name },
-          create: { name },
-        })),
+        connect: genreIds.map((id) => ({ id })),
       },
     },
   });
@@ -38,7 +30,10 @@ async function createMovie(formData: FormData) {
   redirect("/admin/movies");
 }
 
-export default function AdminNewMoviePage() {
+export default async function AdminNewMoviePage() {
+  const genres = await prisma.genre.findMany({
+    orderBy: { name: 'asc' },
+  });
 
   return (
     <section className="space-y-4">
@@ -68,12 +63,19 @@ export default function AdminNewMoviePage() {
         </div>
 
         <div>
-          <label className="text-sm">Genres (comma separated)</label>
-          <input
-          name="genres"
-          placeholder="Action, Drama, Comedy"
-          className="w-full rounded-md border px-3 py-2 text-sm"
-          />
+          <label className="text-sm">Genres</label>
+          <div className="flex flex-wrap gap-3 rounded-md border px-3 py-2">
+            {genres.map((genre) => (
+              <label key={genre.id} className="flex items-center gap-1.5 text-sm">
+                <input
+                  type="checkbox"
+                  name="genreIds"
+                  value={genre.id}
+                />
+                {genre.name}
+              </label>
+            ))}
+          </div>
         </div>
 
         <div>
