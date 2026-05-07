@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Clock, Calendar, Star, ShoppingCart } from 'lucide-react';
+import AddToCartButton from '@/components/cart/AddToCartButton';
 
 export default async function MovieDetailsPage({
   params,
@@ -145,10 +146,7 @@ export default async function MovieDetailsPage({
               <p className="text-3xl font-extrabold">{priceLabel}</p>
             </div>
             
-            <Button size="lg" className="w-full sm:w-auto text-base font-bold px-8 h-14 rounded-xl gap-2 shadow-lg hover:scale-105 transition-transform">
-              <ShoppingCart className="w-5 h-5" />
-              Add to Cart
-            </Button>
+            <AddToCartButton movieId={movie.id} />
           </div>
         </div>
       </div>

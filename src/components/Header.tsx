@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { Film, ShoppingCart, User } from 'lucide-react';
+import { Film, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Suspense } from 'react';
 import SearchInput from './SearchInput';
+import CartIcon from './cart/CartIcon';
 
 export default function Header() {
   return (
@@ -36,9 +37,7 @@ export default function Header() {
         {/* Center Section: Search */}
         <div className="flex-1 max-w-2xl px-6 hidden md:block">
           <Suspense
-            fallback={
-              <div className="h-9 w-full rounded-full bg-slate-100" />
-            }
+            fallback={<div className="h-9 w-full rounded-full bg-slate-100" />}
           >
             <SearchInput />
           </Suspense>
@@ -46,14 +45,7 @@ export default function Header() {
 
         {/* Right Section: Actions */}
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground rounded-full p-2"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            <span className="sr-only">Shopping Cart</span>
-          </Button>
+          <CartIcon />
           <Link href="/dashboard">
             <Button
               variant="ghost"
