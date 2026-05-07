@@ -11,8 +11,6 @@ async function updateMovie(id: string, formData: FormData) {
   const stock = Number(formData.get("stock"));
   const releaseDate = new Date(formData.get("releaseDate") as string);
 
-  const genreIds = formData.getAll('genreIds') as string[];
-
   await prisma.movie.update({
     where: { id },
     data: {
@@ -21,9 +19,6 @@ async function updateMovie(id: string, formData: FormData) {
       price,
       stock,
       releaseDate,
-      genres: {
-        set: genreIds.map((id) => ({ id })),
-      },
     },
   });
 
@@ -47,15 +42,9 @@ export default async function AdminEditMoviePage({
 }) {
   const { id } = await params;
 
-  const [movie, allGenres] = await Promise.all([
-    prisma.movie.findUnique({
-      where: { id },
-      include: { genres: true },
-    }),
-    prisma.genre.findMany({
-      orderBy: { name: 'asc' },
-    }),
-  ]);
+  const movie = await prisma.movie.findUnique({
+    where: { id },
+  });
 
   if (!movie) {
     return <div>Movie not found</div>;
@@ -109,26 +98,11 @@ export default async function AdminEditMoviePage({
           <input
             name="releaseDate"
             type="date"
-            defaultValue={movie.releaseDate.toISOString().split("T")[0]}
+            defaultValue={movie.releaseDate
+              .toISOString()
+              .split("T")[0]}
             className="w-full rounded-md border px-3 py-2 text-sm"
           />
-        </div>
-
-        <div>
-          <label className="text-sm">Genres</label>
-          <div className="flex flex-wrap gap-3 rounded-md border px-3 py-2">
-            {allGenres.map((genre) => (
-              <label key={genre.id} className="flex items-center gap-1.5 text-sm">
-                <input
-                  type="checkbox"
-                  name="genreIds"
-                  value={genre.id}
-                  defaultChecked={movie.genres.some((g) => g.id === genre.id)}
-                />
-                {genre.name}
-              </label>
-            ))}
-          </div>
         </div>
         <UpdateButton />
       </form>
