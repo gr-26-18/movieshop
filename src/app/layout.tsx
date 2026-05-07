@@ -3,8 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 // Added 2026-05-05:
 // Use route-aware shell wrapper to stabilize global Header/Footer behavior.
 import LayoutShell from '@/components/layout-shell';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+
 import { CartProvider } from '@/contexts/CartContext';
 import { getCartCookies } from '@/actions/cart';
 import { Toaster } from 'sonner';
@@ -40,14 +39,12 @@ export default async function RootLayout({
     >
       {/* Added 2026-05-05: wrapped app content in LayoutShell (client-side path-aware shell). */}
       <body className="min-h-full flex flex-col p-4" suppressHydrationWarning>
-        <LayoutShell>
-          <CartProvider initialCart={initialCart}>
-            <Header />
+        <CartProvider initialCart={initialCart}>
+          <LayoutShell>
             <div className="flex-1">{children}</div>
-            <Footer />
-            <Toaster />
-          </CartProvider>
-        </LayoutShell>
+          </LayoutShell>
+          <Toaster />
+        </CartProvider>
       </body>
     </html>
   );
