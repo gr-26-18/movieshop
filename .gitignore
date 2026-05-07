@@ -17,6 +17,7 @@
 /.next/
 /out/
 
+
 # production
 /build
 
@@ -26,7 +27,7 @@
 *.txt
 *.log
 *.orig
-# don#t ever touch this
+
 *.md
 # debug
 npm-debug.log*
@@ -38,6 +39,8 @@ yarn-error.log*
 .env*
 !.env.example
 .vscode
+*.slnx
+.vscode/v18
 
 # leftover scaffold folder (locked by OS — delete manually after restart)
 /movieshop

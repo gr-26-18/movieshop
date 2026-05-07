@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
 import { DeleteButton } from "@/app/admin/_components/delete-button";
+import { formatPrice } from "@/lib/utils";
 
 async function deleteMovie(id: string) {
   "use server";

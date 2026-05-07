@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma/client";
 import { redirect } from "next/navigation";
 import { UpdateButton } from "@/app/admin/_components/update-button";
 
@@ -40,6 +41,29 @@ async function deleteMovie(id: string) {
   redirect("/admin/movies");
 }
 
+async function findMovieById(id: string) {
+  try {
+    return await prisma.movie.findUnique({
+      where: { id },
+      include: { genres: true },
+    });
+  } catch (error) {
+    // Retry once for transient "server closed the connection" errors.
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P1017"
+    ) {
+      await prisma.$disconnect();
+      await prisma.$connect();
+      return prisma.movie.findUnique({
+        where: { id },
+        include: { genres: true },
+      });
+    }
+    throw error;
+  }
+}
+
 export default async function AdminEditMoviePage({
   params,
 }: {
@@ -48,12 +72,9 @@ export default async function AdminEditMoviePage({
   const { id } = await params;
 
   const [movie, allGenres] = await Promise.all([
-    prisma.movie.findUnique({
-      where: { id },
-      include: { genres: true },
-    }),
+    findMovieById(id),
     prisma.genre.findMany({
-      orderBy: { name: 'asc' },
+      orderBy: { name: "asc" },
     }),
   ]);
 
