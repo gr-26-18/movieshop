@@ -1,7 +1,7 @@
 /**
  * New added code
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from '@/lib/prisma';
 import {
   Table,
   TableBody,
@@ -9,21 +9,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { RevenueChart } from "./_components/revenue-chart";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { RevenueChart } from './_components/revenue-chart';
+import { formatPrice } from '@/lib/utils';
 
-type OrderStatus = "PENDING" | "COMPLETED" | "CANCELLED";
-
-function currencyFromCents(value: number): string {
-  return new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(value);
-}
+type OrderStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED';
 
 function getStatusBadgeClass(status: OrderStatus): string {
   const styles: Record<OrderStatus, string> = {
-    PENDING: "border-amber-200 bg-amber-100 text-amber-800",
-    COMPLETED: "border-green-200 bg-green-100 text-green-800",
-    CANCELLED: "border-red-200 bg-red-100 text-red-800",
+    PENDING: 'border-amber-200 bg-amber-100 text-amber-800',
+    COMPLETED: 'border-green-200 bg-green-100 text-green-800',
+    CANCELLED: 'border-red-200 bg-red-100 text-red-800',
   };
 
   return styles[status];
@@ -51,7 +48,7 @@ export default async function AdminOverviewPage() {
     }),
     prisma.order.findMany({
       take: 5,
-      orderBy: { orderDate: "desc" },
+      orderBy: { orderDate: 'desc' },
       include: {
         orderItems: {
           include: {
@@ -66,7 +63,7 @@ export default async function AdminOverviewPage() {
       take: 5,
       orderBy: {
         orderItems: {
-          _count: "desc",
+          _count: 'desc',
         },
       },
       select: {
@@ -89,7 +86,7 @@ export default async function AdminOverviewPage() {
         totalAmount: true,
       },
       orderBy: {
-        orderDate: "asc",
+        orderDate: 'asc',
       },
     }),
   ]);
@@ -97,17 +94,20 @@ export default async function AdminOverviewPage() {
   // Build stable local date keys (YYYY-MM-DD) to avoid timezone edge cases.
   const toLocalDateKey = (date: Date) => {
     const year = date.getFullYear();
-    const month = `${date.getMonth() + 1}`.padStart(2, "0");
-    const day = `${date.getDate()}`.padStart(2, "0");
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
 
   // Aggregate order totals by local day.
-  const revenueByDate = chartOrders.reduce<Record<string, number>>((acc, order) => {
-    const key = toLocalDateKey(order.orderDate);
-    acc[key] = (acc[key] ?? 0) + order.totalAmount;
-    return acc;
-  }, {});
+  const revenueByDate = chartOrders.reduce<Record<string, number>>(
+    (acc, order) => {
+      const key = toLocalDateKey(order.orderDate);
+      acc[key] = (acc[key] ?? 0) + order.totalAmount;
+      return acc;
+    },
+    {},
+  );
 
   // Always return a full 7-day window, filling missing days with 0.
   const chartData = Array.from({ length: 7 }, (_, i) => {
@@ -116,7 +116,7 @@ export default async function AdminOverviewPage() {
     const dayKey = toLocalDateKey(dayDate);
 
     return {
-      date: `${dayDate.toLocaleDateString("en-US", { weekday: "short" })} ${dayDate.getDate()}`,
+      date: `${dayDate.toLocaleDateString('en-US', { weekday: 'short' })} ${dayDate.getDate()}`,
       revenue: revenueByDate[dayKey] ?? 0,
     };
   });
@@ -126,7 +126,10 @@ export default async function AdminOverviewPage() {
   return (
     <section className="space-y-10" aria-labelledby="admin-overview-title">
       <div>
-        <h2 id="admin-overview-title" className="text-2xl font-bold tracking-tight">
+        <h2
+          id="admin-overview-title"
+          className="text-2xl font-bold tracking-tight"
+        >
           Sales Statistics
         </h2>
         <p className="text-sm text-muted-foreground">
@@ -147,7 +150,7 @@ export default async function AdminOverviewPage() {
         <div className="rounded-lg border bg-card p-4 shadow-sm">
           <p className="text-sm text-muted-foreground">Total Revenue</p>
           <p className="mt-1 text-2xl font-semibold text-green-600">
-            {currencyFromCents(totalRevenue)}
+            {formatPrice(totalRevenue)}
           </p>
         </div>
       </div>
@@ -186,7 +189,7 @@ export default async function AdminOverviewPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {currencyFromCents(order.totalAmount)}
+                      {formatPrice(order.totalAmount)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -218,9 +221,11 @@ export default async function AdminOverviewPage() {
                 {topMovies.map((movie) => (
                   <TableRow key={movie.id}>
                     <TableCell className="font-medium">{movie.title}</TableCell>
-                    <TableCell className="text-right">{movie._count.orderItems}</TableCell>
                     <TableCell className="text-right">
-                      {currencyFromCents(movie.price)}
+                      {movie._count.orderItems}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatPrice(movie.price)}
                     </TableCell>
                   </TableRow>
                 ))}
