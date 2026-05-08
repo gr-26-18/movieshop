@@ -11,6 +11,7 @@ async function createMovie(formData: FormData) {
   const description = formData.get("description") as string;
   const price = Number(formData.get("price"));
   const stock = Number(formData.get("stock"));
+  const runtime = formData.get("runtime") ? Number(formData.get("runtime")) : null;
   const releaseDate = new Date(formData.get("releaseDate") as string);
   const imageUrl = formData.get("imageUrl") as string;
 
@@ -18,31 +19,34 @@ async function createMovie(formData: FormData) {
   const directorIds = formData.getAll("directorId") as string[];
   const actorIds = formData.getAll("actorIds") as string[];
 
-  const movie = await prisma.movie.create({
-    data: {
-      title,
-      description,
-      price,
-      stock,
-      releaseDate,
-      imageUrl,
-      genres: {
-        connect: genreIds.map((id) => ({ id })),
+  await prisma.$transaction(async (tx) => {
+    const movie = await tx.movie.create({
+      data: {
+        title,
+        description,
+        price,
+        stock,
+        runtime,
+        releaseDate,
+        imageUrl,
+        genres: {
+          connect: genreIds.map((id) => ({ id })),
+        },
       },
-    },
+    });
+
+    for (const directorId of directorIds) {
+      await tx.movieCredit.create({
+        data: { movieId: movie.id, personId: directorId, role: 'DIRECTOR' },
+      });
+    }
+
+    for (const actorId of actorIds) {
+      await tx.movieCredit.create({
+        data: { movieId: movie.id, personId: actorId, role: 'ACTOR' },
+      });
+    }
   });
-
-  for (const directorId of directorIds) {
-    await prisma.movieCredit.create({
-      data: { movieId: movie.id, personId: directorId, role: 'DIRECTOR' },
-    });
-  }
-
-  for (const actorId of actorIds) {
-    await prisma.movieCredit.create({
-      data: { movieId: movie.id, personId: actorId, role: 'ACTOR' },
-    });
-  }
 
   redirect("/admin/movies");
 }

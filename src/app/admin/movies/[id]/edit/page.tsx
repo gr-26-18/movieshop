@@ -12,46 +12,44 @@ async function updateMovie(id: string, formData: FormData) {
   const description = formData.get("description") as string;
   const price = Number(formData.get("price"));
   const stock = Number(formData.get("stock"));
+  const runtime = formData.get("runtime") ? Number(formData.get("runtime")) : null;
   const releaseDate = new Date(formData.get("releaseDate") as string);
 
   const genreIds = formData.getAll("genreIds") as string[];
   const directorIds = formData.getAll("directorId") as string[];
   const actorIds = formData.getAll("actorIds") as string[];
 
-  await prisma.movie.update({
-    where: { id },
-    data: {
-      title,
-      description,
-      price,
-      stock,
-      releaseDate,
-      genres: {
-        set: genreIds.map((id) => ({ id })),
+  await prisma.$transaction(async (tx) => {
+    await tx.movie.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        price,
+        stock,
+        runtime,
+        releaseDate,
+        genres: {
+          set: genreIds.map((id) => ({ id })),
+        },
       },
-    },
+    });
+
+    await tx.movieCredit.deleteMany({ where: { movieId: id } });
+
+    for (const directorId of directorIds) {
+      await tx.movieCredit.create({
+        data: { movieId: id, personId: directorId, role: 'DIRECTOR' },
+      });
+    }
+
+    for (const actorId of actorIds) {
+      await tx.movieCredit.create({
+        data: { movieId: id, personId: actorId, role: 'ACTOR' },
+      });
+    }
   });
 
-  await prisma.movieCredit.deleteMany({ where: { movieId: id } });
-
-  for (const directorId of directorIds) {
-    await prisma.movieCredit.create({
-      data: { movieId: id, personId: directorId, role: 'DIRECTOR' },
-    });
-  }
-
-  for (const actorId of actorIds) {
-    await prisma.movieCredit.create({
-      data: { movieId: id, personId: actorId, role: 'ACTOR' },
-    });
-  }
-
-  redirect("/admin/movies");
-}
-
-async function deleteMovie(id: string) {
-  "use server";
-  await prisma.movie.delete({ where: { id } });
   redirect("/admin/movies");
 }
 
@@ -145,6 +143,16 @@ export default async function AdminEditMoviePage({
         </div>
 
         <div>
+          <label className="text-sm">Runtime (minutes)</label>
+          <input
+            name="runtime"
+            type="number"
+            defaultValue={movie.runtime ?? ''}
+            className="w-full rounded-md border px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
           <label className="text-sm">Release Date</label>
           <input
             name="releaseDate"
@@ -156,7 +164,6 @@ export default async function AdminEditMoviePage({
 
         <div className="flex gap-3">
           <UpdateButton label="movie" />
-  
           <a href="/admin/movies"
             className="rounded-md border px-4 py-2 text-sm hover:bg-muted"
           >
