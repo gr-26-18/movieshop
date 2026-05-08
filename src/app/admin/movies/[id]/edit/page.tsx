@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { UpdateButton } from "@/app/admin/_components/update-button";
+import { GenrePicker } from "@/app/admin/_components/genre-picker";
+import { DirectorPicker } from "@/app/admin/_components/director-picker";
+import { ActorPicker } from "@/app/admin/_components/actor-picker";
 
 async function updateMovie(id: string, formData: FormData) {
   "use server";
@@ -11,7 +14,9 @@ async function updateMovie(id: string, formData: FormData) {
   const stock = Number(formData.get("stock"));
   const releaseDate = new Date(formData.get("releaseDate") as string);
 
-  const genreIds = formData.getAll('genreIds') as string[];
+  const genreIds = formData.getAll("genreIds") as string[];
+  const directorIds = formData.getAll("directorId") as string[];
+  const actorIds = formData.getAll("actorIds") as string[];
 
   await prisma.movie.update({
     where: { id },
@@ -27,16 +32,26 @@ async function updateMovie(id: string, formData: FormData) {
     },
   });
 
+  await prisma.movieCredit.deleteMany({ where: { movieId: id } });
+
+  for (const directorId of directorIds) {
+    await prisma.movieCredit.create({
+      data: { movieId: id, personId: directorId, role: 'DIRECTOR' },
+    });
+  }
+
+  for (const actorId of actorIds) {
+    await prisma.movieCredit.create({
+      data: { movieId: id, personId: actorId, role: 'ACTOR' },
+    });
+  }
+
   redirect("/admin/movies");
 }
 
 async function deleteMovie(id: string) {
   "use server";
-
-  await prisma.movie.delete({
-    where: { id },
-  });
-
+  await prisma.movie.delete({ where: { id } });
   redirect("/admin/movies");
 }
 
@@ -47,19 +62,29 @@ export default async function AdminEditMoviePage({
 }) {
   const { id } = await params;
 
-  const [movie, allGenres] = await Promise.all([
+  const [movie, allGenres, allPeople] = await Promise.all([
     prisma.movie.findUnique({
       where: { id },
-      include: { genres: true },
+      include: {
+        genres: true,
+        credits: { include: { person: true } },
+      },
     }),
-    prisma.genre.findMany({
-      orderBy: { name: 'asc' },
-    }),
+    prisma.genre.findMany({ orderBy: { name: 'asc' } }),
+    prisma.person.findMany({ orderBy: { name: 'asc' } }),
   ]);
 
   if (!movie) {
     return <div>Movie not found</div>;
   }
+
+  const currentDirectors = movie.credits
+    .filter((c) => c.role === 'DIRECTOR')
+    .map((c) => c.person);
+
+  const currentActors = movie.credits
+    .filter((c) => c.role === 'ACTOR')
+    .map((c) => c.person);
 
   return (
     <section className="space-y-4">
@@ -82,6 +107,21 @@ export default async function AdminEditMoviePage({
             defaultValue={movie.description ?? ""}
             className="w-full rounded-md border px-3 py-2 text-sm"
           />
+        </div>
+
+        <div>
+          <label className="text-sm">Genres</label>
+          <GenrePicker genres={allGenres} initialSelected={movie.genres} />
+        </div>
+
+        <div>
+          <label className="text-sm">Director</label>
+          <DirectorPicker people={allPeople} initialSelected={currentDirectors} />
+        </div>
+
+        <div>
+          <label className="text-sm">Actors</label>
+          <ActorPicker people={allPeople} initialSelected={currentActors} />
         </div>
 
         <div>
@@ -114,23 +154,15 @@ export default async function AdminEditMoviePage({
           />
         </div>
 
-        <div>
-          <label className="text-sm">Genres</label>
-          <div className="flex flex-wrap gap-3 rounded-md border px-3 py-2">
-            {allGenres.map((genre) => (
-              <label key={genre.id} className="flex items-center gap-1.5 text-sm">
-                <input
-                  type="checkbox"
-                  name="genreIds"
-                  value={genre.id}
-                  defaultChecked={movie.genres.some((g) => g.id === genre.id)}
-                />
-                {genre.name}
-              </label>
-            ))}
-          </div>
+        <div className="flex gap-3">
+          <UpdateButton label="movie" />
+  
+          <a href="/admin/movies"
+            className="rounded-md border px-4 py-2 text-sm hover:bg-muted"
+          >
+            Cancel
+          </a>
         </div>
-        <UpdateButton label="movie" />
       </form>
     </section>
   );
