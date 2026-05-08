@@ -22,7 +22,7 @@ export default function MovieCard({ movie, priority = false }: MovieCardProps) {
       href={`/movie/${movie.id}`}
       className="flex flex-col group cursor-pointer p-3 -m-3 rounded-2xl transition-all duration-300 hover:bg-slate-50 hover:shadow-xl hover:scale-105"
     >
-      <div className="relative w-full h-[420px] sm:h-[360px] lg:h-[300px] rounded-xl overflow-hidden mb-4 bg-slate-200">
+      <div className="relative w-full h-105 sm:h-90 lg:h-75 rounded-xl overflow-hidden mb-4 bg-slate-200">
         <Image
           src={movie.imageUrl || '/placeholder-movie.jpg'}
           alt={movie.title}
