@@ -130,7 +130,7 @@ export default async function AdminEditMoviePage({
             ))}
           </div>
         </div>
-        <UpdateButton />
+        <UpdateButton label="movie" />
       </form>
     </section>
   );
