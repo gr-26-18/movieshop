@@ -53,7 +53,7 @@ export default function Header() {
               className="text-muted-foreground hover:text-foreground gap-2"
             >
               <User className="h-4 w-4" />
-              <span>Dashboard</span>
+              <span className="sr-only">Dashboard</span>
             </Button>
           </Link>
         </div>

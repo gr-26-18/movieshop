@@ -9,14 +9,10 @@ import AddToCartButton from '@/components/cart/AddToCartButton';
 
 export default async function MovieDetailsPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ from?: string }>;
 }) {
   const { id } = await params;
-  const query = await searchParams;
-  const backHref = query.from === 'admin-movies' ? '/admin/movies' : '/';
 
   const movie = await prisma.movie.findUnique({
     where: { id },
@@ -49,8 +45,12 @@ export default async function MovieDetailsPage({
     .map((c) => c.person.name)
     .join(', ');
 
-  const priceLabel = new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(movie.price);
-  
+  const priceLabel = new Intl.NumberFormat('sv-SE', {
+    style: 'currency',
+    currency: 'SEK',
+    maximumFractionDigits: 0,
+  }).format(movie.price);
+
   // Format release date e.g., March 24, 1972
   const releaseDateFormatted = new Intl.DateTimeFormat('en-US', {
     month: 'long',
@@ -62,8 +62,12 @@ export default async function MovieDetailsPage({
     <main className="container mx-auto py-10 px-4">
       {/* Back Button */}
       <div className="mb-8">
-        <Button variant="ghost" asChild className="pl-0 hover:bg-transparent flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-          <Link href={backHref}>
+        <Button
+          variant="ghost"
+          asChild
+          className="pl-0 hover:bg-transparent flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Link href="/">
             <ArrowLeft className="w-4 h-4" />
             Back
           </Link>
@@ -88,7 +92,11 @@ export default async function MovieDetailsPage({
           {/* Genres */}
           <div className="flex flex-wrap gap-2 mb-4">
             {movie.genres.map((genre) => (
-              <Badge key={genre.id} variant="secondary" className="bg-muted hover:bg-muted text-muted-foreground font-semibold px-3 py-1 text-xs rounded-full shadow-none">
+              <Badge
+                key={genre.id}
+                variant="secondary"
+                className="bg-muted hover:bg-muted text-muted-foreground font-semibold px-3 py-1 text-xs rounded-full shadow-none"
+              >
                 {genre.name}
               </Badge>
             ))}
@@ -103,17 +111,19 @@ export default async function MovieDetailsPage({
           <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-8 font-medium">
             <div className="flex items-center gap-1.5">
               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-foreground font-bold">{movie.rating ? movie.rating.toFixed(1) : 'N/A'}</span>
+              <span className="text-foreground font-bold">
+                {movie.rating ? movie.rating.toFixed(1) : 'N/A'}
+              </span>
               <span>({totalPurchases} purchases)</span>
             </div>
-            
+
             {movie.runtime && (
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4" />
                 <span>{movie.runtime} min</span>
               </div>
             )}
-            
+
             <div className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
               <span>{releaseDateFormatted}</span>
@@ -142,10 +152,12 @@ export default async function MovieDetailsPage({
           {/* Add to Cart Section */}
           <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mt-auto">
             <div>
-              <p className="text-sm text-muted-foreground font-semibold mb-1">Buy Digital Copy</p>
+              <p className="text-sm text-muted-foreground font-semibold mb-1">
+                Buy Digital Copy
+              </p>
               <p className="text-3xl font-extrabold">{priceLabel}</p>
             </div>
-            
+
             <AddToCartButton movieId={movie.id} />
           </div>
         </div>
