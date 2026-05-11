@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 import {
   LayoutDashboard,
   Film,
@@ -34,11 +35,10 @@ const data = {
       title: "Overview",
       url: "/dashboard",
       icon: LayoutDashboard,
-      isActive: true,
     },
     {
       title: "My Movies",
-      url: "/dashboard#order-history",
+      url: "/dashboard?section=order-history",
       icon: Film,
     },
     {
@@ -55,13 +55,25 @@ const data = {
     },
     {
       title: "Help & Support",
-      url: "#",
+      url: "/dashboard/help-support",
       icon: HelpCircle,
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname() ?? ""
+  const searchParams = useSearchParams()
+  const dashboardSection = searchParams.get("section")
+
+  const isOverviewActive =
+    pathname === "/dashboard" && dashboardSection !== "order-history"
+  const isMyMoviesActive =
+    pathname === "/dashboard" && dashboardSection === "order-history"
+  const isShopActive = pathname === "/"
+  const isSettingsActive = pathname.startsWith("/dashboard/settings")
+  const isHelpActive = pathname.startsWith("/dashboard/help-support")
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -86,32 +98,69 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {data.navMain.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title} isActive={item.isActive}>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {data.navMain.map((item) => {
+                const active =
+                  item.title === "Overview"
+                    ? isOverviewActive
+                    : item.title === "My Movies"
+                      ? isMyMoviesActive
+                      : item.title === "Shop"
+                        ? isShopActive
+                        : false
+
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild tooltip={item.title} isActive={active}>
+                      <Link
+                        href={item.url}
+                        onClick={
+                          item.title === "My Movies" &&
+                          pathname === "/dashboard" &&
+                          dashboardSection === "order-history"
+                            ? (e) => {
+                                e.preventDefault()
+                                document
+                                  .getElementById("order-history")
+                                  ?.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start",
+                                  })
+                              }
+                            : undefined
+                        }
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
-              {data.navSecondary.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild size="sm">
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {data.navSecondary.map((item) => {
+                const active =
+                  item.title === "Settings"
+                    ? isSettingsActive
+                    : item.title === "Help & Support"
+                      ? isHelpActive
+                      : false
+
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild size="sm" isActive={active}>
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
