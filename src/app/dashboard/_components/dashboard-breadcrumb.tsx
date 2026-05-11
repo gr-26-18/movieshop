@@ -1,5 +1,7 @@
 "use client";
 
+// Added 2026-05-11 — route-aware dashboard breadcrumb labels.
+
 import { usePathname } from "next/navigation";
 import {
   Breadcrumb,

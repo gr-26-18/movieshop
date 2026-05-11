@@ -1,5 +1,7 @@
 "use client"
 
+// Updated 2026-05-11 — Help link, active states, My Movies ?section=, Suspense-friendly searchParams.
+
 import * as React from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import {

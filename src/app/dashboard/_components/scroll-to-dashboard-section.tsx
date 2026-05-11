@@ -1,5 +1,7 @@
 'use client';
 
+// Added 2026-05-11 — scroll to order history when ?section=order-history.
+
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 

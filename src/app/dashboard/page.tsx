@@ -1,3 +1,4 @@
+// Updated 2026-05-11 — ScrollToDashboardSection via Suspense for My Movies deep link.
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { prisma } from '@/lib/prisma';

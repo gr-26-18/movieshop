@@ -1,3 +1,4 @@
+// Updated 2026-05-11 — Suspense around AppSidebar; DashboardBreadcrumb in header.
 import { Suspense } from "react"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "./_components/app-sidebar"

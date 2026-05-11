@@ -1,3 +1,4 @@
+// Added 2026-05-11 — Help & Support dashboard route.
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
