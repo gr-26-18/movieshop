@@ -142,10 +142,12 @@ export default function CartClientView({ initialItems }: { initialItems: CartIte
           </div>
         </div>
 
-        <Button size="lg" className="w-full mt-8 h-12 rounded-xl font-bold shadow-lg gap-2 text-base">
-          <CreditCard className="w-5 h-5" />
-          Checkout
-        </Button>
+        <Link href="/checkout" className="w-full">
+          <Button size="lg" className="w-full mt-8 h-12 rounded-xl font-bold shadow-lg gap-2 text-base">
+            <CreditCard className="w-5 h-5" />
+            Checkout
+          </Button>
+        </Link>
       </div>
     </div>
   );

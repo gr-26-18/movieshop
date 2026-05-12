@@ -57,15 +57,18 @@ export default async function LandingPage({
   }
   // Fetching the 4 categories required by the spec.
   // "Most Purchased" is ranked by summed quantity sold.
-  const [mostPurchasedIds, mostRecent, oldest, cheapest] =
+  const [mostPurchased, mostRecent, oldest, cheapest] =
     await runPrismaWithFallback(
       () =>
         Promise.all([
-          prisma.orderItem.groupBy({
-            by: ['movieId'],
-            _sum: { quantity: true },
-            orderBy: { _sum: { quantity: 'desc' } },
+          prisma.movie.findMany({
             take: 5,
+            orderBy: {
+              orderItems: {
+                _count: 'desc'
+              }
+            },
+            include: { genres: true },
           }),
           prisma.movie.findMany({
             take: 5,
@@ -84,17 +87,14 @@ export default async function LandingPage({
           }),
         ]),
       [[], [], [], []] as [
-        { movieId: string; _sum: { quantity: number | null } }[],
+        LandingMovie[],
         LandingMovie[],
         LandingMovie[],
         LandingMovie[],
       ],
     );
 
-  const mostPurchased = await runPrismaWithFallback(
-    () => getMostPurchasedMovies(mostPurchasedIds),
-    [] as LandingMovie[],
-  );
+
 
   return (
     <main className="container mx-auto py-10 space-y-12">
@@ -108,30 +108,6 @@ export default async function LandingPage({
       <MovieSection title="Best Deals" movies={cheapest} />
     </main>
   );
-}
-
-async function getMostPurchasedMovies(
-  rankedIds: { movieId: string; _sum: { quantity: number | null } }[],
-): Promise<LandingMovie[]> {
-  if (rankedIds.length === 0) return [];
-
-  const ids = rankedIds.map((item) => item.movieId);
-  const movies = await prisma.movie.findMany({
-    where: { id: { in: ids } },
-    include: { genres: true },
-  });
-
-  const movieById = new Map(movies.map((movie) => [movie.id, movie]));
-  const orderedMovies: LandingMovie[] = [];
-
-  for (const id of ids) {
-    const movie = movieById.get(id);
-    if (movie) {
-      orderedMovies.push(movie);
-    }
-  }
-
-  return orderedMovies;
 }
 
 // Simple wrapper for the sections

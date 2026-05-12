@@ -90,14 +90,22 @@ enum OrderStatus {
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  userId      String      // Reference to Better Auth user 
-  totalAmount Int      
-  status      OrderStatus @default(PENDING) 
-  orderDate   DateTime    @default(now())     
+  id              String      @id @default(cuid())
+  userId          String      // Reference to Better Auth user 
+  totalAmount     Int      
+  status          OrderStatus @default(PENDING) 
+  orderDate       DateTime    @default(now())     
+
+  // Shipping Information
+  shippingName    String?
+  addressLine1    String?
+  city            String?
+  state           String?
+  zipCode         String?
+  country         String?
 
   // Relationships
-  orderItems  OrderItem[]
+  orderItems      OrderItem[]
 }
 
 model OrderItem {
