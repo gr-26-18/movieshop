@@ -1,20 +1,41 @@
-export async function getCurrentUserId(): Promise<string | null> {
-  // TODO(auth): Replace with Better Auth server session lookup.
-  // Suggested contract for teammate integration:
-  // - Return authenticated user id when available.
-  // - Return null for unauthenticated requests.
-  return null;
-}
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { prisma } from "@/lib/prisma";
 
-export async function isAdminUser(): Promise<boolean> {
-  const userId = await getCurrentUserId();
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
 
-  // TODO(auth): Replace with real role/permission check from Better Auth.
-  // Temporary behavior keeps admin route available in local development
-  // until teammate auth wiring is merged.
-  if (!userId) {
-    return true;
-  }
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+  },
 
-  return true;
-}
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      console.log(`[DEV] Verify email for ${user.email}: ${url}`);
+    },
+    verificationCallbackURL: "/verify-email",
+  },
+
+  session: {
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
+  },
+
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  ],
+
+  // Tell Better Auth about our custom role field
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: false,
+        defaultValue: "customer",
+      },
+    },
+  },
+});
