@@ -1,10 +1,13 @@
+// Updated 2026-05-11 — ScrollToDashboardSection via Suspense for My Movies deep link.
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/button';
 import { MovieThumbnail } from './_components/movie-thumbnail';
 import { formatPrice } from '@/lib/utils';
 
 import { OrderDetailsSheet } from './_components/order-details';
+import { ScrollToDashboardSection } from './_components/scroll-to-dashboard-section';
 /* DASHBOARD PAGE COMPONENT
  * Server Component — fetches user's order history.
  */
@@ -53,6 +56,9 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-8">
+      <Suspense fallback={null}>
+        <ScrollToDashboardSection />
+      </Suspense>
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">
           Welcome back, Samir
