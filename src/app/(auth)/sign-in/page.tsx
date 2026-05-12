@@ -6,29 +6,17 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { z } from "zod";
 
-const signUpSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+const signInSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
 
-type SignUpForm = z.infer<typeof signUpSchema>;
-type FieldErrors = Partial<Record<keyof SignUpForm, string>>;
+type SignInForm = z.infer<typeof signInSchema>;
+type FieldErrors = Partial<Record<keyof SignInForm, string>>;
 
-export default function SignUpPage() {
+export default function SignInPage() {
   const router = useRouter();
-  const [form, setForm] = useState<SignUpForm>({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [form, setForm] = useState<SignInForm>({ email: "", password: "" });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -43,12 +31,12 @@ export default function SignUpPage() {
     e.preventDefault();
     setServerError(null);
 
-    const result = signUpSchema.safeParse(form);
-      if (!result.success) {
-        const fieldErrors: FieldErrors = {};
-        result.error.issues.forEach((issue) => {
-          const field = issue.path[0] as keyof SignUpForm;
-          fieldErrors[field] = issue.message;
+    const result = signInSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors: FieldErrors = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof SignInForm;
+        fieldErrors[field] = issue.message;
       });
       setErrors(fieldErrors);
       return;
@@ -56,19 +44,23 @@ export default function SignUpPage() {
 
     setLoading(true);
     try {
-      const { error } = await authClient.signUp.email({
-        name: form.name,
+      const { error } = await authClient.signIn.email({
         email: form.email,
         password: form.password,
-        callbackURL: "/verify-email",
+        callbackURL: "/",
       });
 
       if (error) {
-        setServerError(error.message ?? "Sign up failed. Please try again.");
+        if (error.code === "EMAIL_NOT_VERIFIED") {
+          router.push(`/verify-email?email=${encodeURIComponent(form.email)}&resend=true`);
+          return;
+        }
+        setServerError(error.message ?? "Invalid email or password.");
         return;
       }
 
-      router.push("/verify-email?sent=true");
+      router.push("/");
+      router.refresh();
     } catch {
       setServerError("Something went wrong. Please try again.");
     } finally {
@@ -85,7 +77,7 @@ export default function SignUpPage() {
               Movie<span className="text-amber-400">Shop</span>
             </span>
           </Link>
-          <p className="text-zinc-500 text-sm mt-1">Create your account</p>
+          <p className="text-zinc-500 text-sm mt-1">Welcome back</p>
         </div>
 
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
@@ -96,24 +88,6 @@ export default function SignUpPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-zinc-300 mb-1.5">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="John Doe"
-                className={`w-full px-4 py-2.5 rounded-lg bg-zinc-800 border text-white placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition ${
-                  errors.name ? "border-red-500" : "border-zinc-700"
-                }`}
-              />
-              {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name}</p>}
-            </div>
-
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-1.5">
                 Email
@@ -142,7 +116,7 @@ export default function SignUpPage() {
                 type="password"
                 value={form.password}
                 onChange={handleChange}
-                placeholder="Min. 8 characters"
+                placeholder="Your password"
                 className={`w-full px-4 py-2.5 rounded-lg bg-zinc-800 border text-white placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition ${
                   errors.password ? "border-red-500" : "border-zinc-700"
                 }`}
@@ -150,37 +124,19 @@ export default function SignUpPage() {
               {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password}</p>}
             </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-zinc-300 mb-1.5">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                placeholder="Repeat your password"
-                className={`w-full px-4 py-2.5 rounded-lg bg-zinc-800 border text-white placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition ${
-                  errors.confirmPassword ? "border-red-500" : "border-zinc-700"
-                }`}
-              />
-              {errors.confirmPassword && <p className="mt-1 text-xs text-red-400">{errors.confirmPassword}</p>}
-            </div>
-
             <button
               type="submit"
               disabled={loading}
               className="w-full py-3 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm tracking-wide transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Creating account…" : "Create Account"}
+              {loading ? "Signing in…" : "Sign In"}
             </button>
           </form>
 
           <p className="text-center text-sm text-zinc-500 mt-6">
-            Already have an account?{" "}
-            <Link href="/sign-in" className="text-amber-400 hover:text-amber-300 font-medium transition">
-              Sign in
+            Don&apos;t have an account?{" "}
+            <Link href="/sign-up" className="text-amber-400 hover:text-amber-300 font-medium transition">
+              Sign up
             </Link>
           </p>
         </div>

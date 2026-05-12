@@ -1,14 +1,33 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
 
-// Added 2026-05-05:
+const AUTH_ROUTES = ["/sign-in", "/sign-up", "/verify-email"];
+const PROTECTED_ROUTES = ["/dashboard", "/orders", "/checkout"];
 
-// This forwards the current pathname in a request header for route-aware layout logic.
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Keep teammate's pathname header logic
   const requestHeaders = new Headers(request.headers);
-  // Added 2026-05-05:
-  // Make pathname available to downstream server-side logic if needed.
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
+
+  // Check session
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  const isLoggedIn = !!session?.user;
+
+  // Logged in users shouldn't see auth pages
+  if (isLoggedIn && AUTH_ROUTES.some((r) => pathname.startsWith(r))) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // Logged out users can't access protected pages
+  if (!isLoggedIn && PROTECTED_ROUTES.some((r) => pathname.startsWith(r))) {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
+  }
 
   return NextResponse.next({
     request: {
@@ -18,7 +37,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Added 2026-05-05:
-  // Run for app routes, but skip API/static/image/favicon paths.
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
