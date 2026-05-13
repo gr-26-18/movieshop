@@ -1,10 +1,13 @@
 // Updated 2026-05-11 — ScrollToDashboardSection via Suspense for My Movies deep link.
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { Button } from '@/components/ui/button';
 import { MovieThumbnail } from './_components/movie-thumbnail';
 import { formatPrice } from '@/lib/utils';
+import { getCurrentUserId } from '@/lib/admin-auth';
+import { getSession } from '@/lib/session';
 
 import { OrderDetailsSheet } from './_components/order-details';
 import { ScrollToDashboardSection } from './_components/scroll-to-dashboard-section';
@@ -20,9 +23,13 @@ export default async function DashboardPage({
   const params = await searchParams;
   const selectedOrderId = params.order;
 
-  // TODO(auth): replace this placeholder with Better Auth session user id
-  // once auth integration is merged by teammate.
-  const userId = 'placeholder-user-id';
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    redirect('/sign-in');
+  }
+
+  const session = await getSession();
+  const displayName = session?.user?.name?.trim() || 'there';
 
   /* Get all orders for this user with order items. */
 
@@ -61,7 +68,7 @@ export default async function DashboardPage({
       </Suspense>
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">
-          Welcome back, Samir
+          Welcome back, {displayName}
         </h1>
         <p className="text-muted-foreground">
           Here's what's happening with your movie collection.
