@@ -3,7 +3,9 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY 
+  ? new Resend(process.env.RESEND_API_KEY) 
+  : null;
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -17,6 +19,12 @@ export const auth = betterAuth({
 
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
+      if (!resend) {
+        // No Resend key — log the link for local development
+        console.log(`[DEV] Verify email for ${user.email}: ${url}`);
+        return;
+      }
+
       await resend.emails.send({
         from: "MovieShop <onboarding@resend.dev>",
         to: user.email,
