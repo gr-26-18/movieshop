@@ -1,5 +1,7 @@
 'use client';
 
+// Updated 2026-05-11 — next/image `sizes` + `priority` on first row (cart LCP / console hints).
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Trash2, Plus, Minus, CreditCard } from 'lucide-react';
@@ -47,7 +49,7 @@ export default function CartClientView({ initialItems }: { initialItems: CartIte
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8 items-start">
       {/* Cart Items List */}
       <div className="flex flex-col gap-6">
-        {displayItems.map((item) => (
+        {displayItems.map((item, index) => (
           <div key={item.id} className="flex gap-4 sm:gap-6 bg-white p-4 sm:p-6 rounded-2xl border shadow-sm items-center">
             {/* Thumbnail */}
             <Link href={`/movie/${item.id}`} className="shrink-0 relative w-20 h-28 sm:w-24 sm:h-36 rounded-lg overflow-hidden bg-slate-200">
@@ -56,6 +58,8 @@ export default function CartClientView({ initialItems }: { initialItems: CartIte
                 alt={item.title}
                 fill
                 className="object-cover"
+                sizes="(max-width: 640px) 80px, 96px"
+                priority={index === 0}
               />
             </Link>
 

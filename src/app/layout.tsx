@@ -3,11 +3,11 @@ import { Geist, Geist_Mono } from 'next/font/google';
 // Added 2026-05-05:
 // Use route-aware shell wrapper to stabilize global Header/Footer behavior.
 import LayoutShell from '@/components/layout-shell';
-
 import { CartProvider } from '@/contexts/CartContext';
 import { getCartCookies } from '@/actions/cart';
 import { Toaster } from 'sonner';
 import './globals.css';
+import { getSession } from '@/lib/session';
 
 const geistSans = Geist({
   variable: '--font-sans',
@@ -30,6 +30,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const initialCart = await getCartCookies();
+  const session = await getSession();
+const user = session?.user ? {
+  name: session.user.name,
+  role: session.user.role ?? "customer",
+} : null;
 
   return (
     <html
@@ -40,7 +45,7 @@ export default async function RootLayout({
       {/* Added 2026-05-05: wrapped app content in LayoutShell (client-side path-aware shell). */}
       <body className="min-h-full flex flex-col p-4" suppressHydrationWarning>
         <CartProvider initialCart={initialCart}>
-          <LayoutShell>
+          <LayoutShell user={user}>
             <div className="flex-1">{children}</div>
           </LayoutShell>
           <Toaster />

@@ -9,8 +9,10 @@ import Footer from '@/components/Footer';
 // during client-side navigation between public and admin/dashboard areas.
 export default function LayoutShell({
   children,
+  user,
 }: {
   children: React.ReactNode;
+  user?: { name: string; role: string } | null;
 }) {
   const pathname = usePathname() ?? '';
   // Added 2026-05-05:
@@ -20,7 +22,7 @@ export default function LayoutShell({
 
   return (
     <>
-      {!isDashboardOrAdmin && <Header />}
+      {!isDashboardOrAdmin && <Header user={user} />}
       <div className="flex-1">{children}</div>
       {!isDashboardOrAdmin && <Footer />}
     </>

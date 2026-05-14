@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { ActorPicker } from "../../_components/actor-picker";
+import { GenrePicker } from "../../_components/genre-picker";
+import { DirectorPicker } from "../../_components/director-picker";
 
 async function createMovie(formData: FormData) {
   "use server";
@@ -8,32 +11,51 @@ async function createMovie(formData: FormData) {
   const description = formData.get("description") as string;
   const price = Number(formData.get("price"));
   const stock = Number(formData.get("stock"));
+  const runtime = formData.get("runtime") ? Number(formData.get("runtime")) : null;
   const releaseDate = new Date(formData.get("releaseDate") as string);
   const imageUrl = formData.get("imageUrl") as string;
 
   const genreIds = formData.getAll("genreIds") as string[];
+  const directorIds = formData.getAll("directorId") as string[];
+  const actorIds = formData.getAll("actorIds") as string[];
 
-  await prisma.movie.create({
-    data: {
-      title,
-      description,
-      price,
-      stock,
-      releaseDate,
-      imageUrl,
-      genres: {
-        connect: genreIds.map((id) => ({ id })),
+  await prisma.$transaction(async (tx) => {
+    const movie = await tx.movie.create({
+      data: {
+        title,
+        description,
+        price,
+        stock,
+        runtime,
+        releaseDate,
+        imageUrl,
+        genres: {
+          connect: genreIds.map((id) => ({ id })),
+        },
       },
-    },
+    });
+
+    for (const directorId of directorIds) {
+      await tx.movieCredit.create({
+        data: { movieId: movie.id, personId: directorId, role: 'DIRECTOR' },
+      });
+    }
+
+    for (const actorId of actorIds) {
+      await tx.movieCredit.create({
+        data: { movieId: movie.id, personId: actorId, role: 'ACTOR' },
+      });
+    }
   });
 
   redirect("/admin/movies");
 }
 
 export default async function AdminNewMoviePage() {
-  const genres = await prisma.genre.findMany({
-    orderBy: { name: 'asc' },
-  });
+  const [genres, people] = await Promise.all([
+    prisma.genre.findMany({ orderBy: { name: 'asc' } }),
+    prisma.person.findMany({ orderBy: { name: 'asc' } }),
+  ]);
 
   return (
     <section className="space-y-4">
@@ -57,25 +79,23 @@ export default async function AdminNewMoviePage() {
           <label className="text-sm">Description</label>
           <input
             name="description"
-            type="string"
             className="w-full rounded-md border px-3 py-2 text-sm"
           />
         </div>
 
         <div>
           <label className="text-sm">Genres</label>
-          <div className="flex flex-wrap gap-3 rounded-md border px-3 py-2">
-            {genres.map((genre) => (
-              <label key={genre.id} className="flex items-center gap-1.5 text-sm">
-                <input
-                  type="checkbox"
-                  name="genreIds"
-                  value={genre.id}
-                />
-                {genre.name}
-              </label>
-            ))}
-          </div>
+          <GenrePicker genres={genres} />
+        </div>
+
+        <div>
+          <label className="text-sm">Director</label>
+          <DirectorPicker people={people} />
+        </div>
+
+        <div>
+          <label className="text-sm">Actors</label>
+          <ActorPicker people={people} />
         </div>
 
         <div>
@@ -91,7 +111,7 @@ export default async function AdminNewMoviePage() {
           <label className="text-sm">Release Date</label>
           <input
             name="releaseDate"
-            type="number"
+            type="date"
             className="w-full rounded-md border px-3 py-2 text-sm"
           />
         </div>
@@ -106,10 +126,10 @@ export default async function AdminNewMoviePage() {
         </div>
 
         <div>
-          <label className="text-sm">Run Time</label>
+          <label className="text-sm">Runtime (minutes)</label>
           <input
-            name="runTime"
-            type="string"
+            name="runtime"
+            type="number"
             className="w-full rounded-md border px-3 py-2 text-sm"
           />
         </div>
@@ -121,7 +141,7 @@ export default async function AdminNewMoviePage() {
             className="w-full rounded-md border px-3 py-2 text-sm"
           />
         </div>
-        
+
         <button
           type="submit"
           className="rounded-md border px-4 py-2 text-sm hover:bg-muted"
@@ -131,4 +151,4 @@ export default async function AdminNewMoviePage() {
       </form>
     </section>
   );
-};
+}
