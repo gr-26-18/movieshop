@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
 import { redirect } from "next/navigation";
 import { UpdateButton } from "@/app/admin/_components/update-button";
 import { GenrePicker } from "@/app/admin/_components/genre-picker";
@@ -52,29 +51,6 @@ async function updateMovie(id: string, formData: FormData) {
   });
 
   redirect("/admin/movies");
-}
-
-async function findMovieById(id: string) {
-  try {
-    return await prisma.movie.findUnique({
-      where: { id },
-      include: { genres: true },
-    });
-  } catch (error) {
-    // Retry once for transient "server closed the connection" errors.
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P1017"
-    ) {
-      await prisma.$disconnect();
-      await prisma.$connect();
-      return prisma.movie.findUnique({
-        where: { id },
-        include: { genres: true },
-      });
-    }
-    throw error;
-  }
 }
 
 export default async function AdminEditMoviePage({

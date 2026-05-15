@@ -10,11 +10,19 @@ async function updateUserRole(formData: FormData) {
 
   const session = await getSession();
   if (!session || session.user.role !== "admin") {
-    return;
+    throw new Error("Unauthorized");
   }
 
   const userId = formData.get("userId") as string;
+
+  if (userId === session.user.id) {
+    throw new Error("You cannot change your own role.");
+  }
+
   const role = formData.get("role") as string;
+  if (role !== "customer" && role !== "admin") {
+    throw new Error("Invalid role");
+  }
 
   await prisma.user.update({
     where: { id: userId },
