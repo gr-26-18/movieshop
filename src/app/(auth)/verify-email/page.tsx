@@ -19,7 +19,6 @@ export default function VerifyEmailPage() {
   const [status, setStatus] = useState<Status>(justSent ? "sent" : "idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Auto-verify when token is in the URL
   useEffect(() => {
     if (!token) return;
 
@@ -69,50 +68,47 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4">
       <div className="relative w-full max-w-md text-center">
         <Link href="/" className="inline-block mb-8">
-          <span className="text-3xl font-black tracking-tighter text-white">
-            Movie<span className="text-amber-400">Shop</span>
+          <span className="text-3xl font-black tracking-tighter text-slate-900">
+            Movie<span className="text-indigo-600">Shop</span>
           </span>
         </Link>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
-          
-          {/* Email verified successfully */}
+        <div className="bg-white border rounded-xl p-8 shadow-sm">
+
           {status === "verified" && (
             <>
               <div className="text-5xl mb-4">✅</div>
-              <h1 className="text-xl font-bold text-white mb-2">
+              <h1 className="text-xl font-bold text-foreground mb-2">
                 Email Verified!
               </h1>
-              <p className="text-zinc-400 text-sm">
-                Your account is confirmed. Redirecting you to home…
+              <p className="text-muted-foreground text-sm">
+                Your account is confirmed. Redirecting you to home\u2026
               </p>
             </>
           )}
 
-          {/* Verifying token in progress */}
           {status === "sending" && token && (
             <>
               <div className="text-5xl mb-4">⏳</div>
-              <h1 className="text-xl font-bold text-white mb-2">
-                Verifying…
+              <h1 className="text-xl font-bold text-foreground mb-2">
+                Verifying\u2026
               </h1>
-              <p className="text-zinc-400 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Please wait while we confirm your email.
               </p>
             </>
           )}
 
-          {/* Error */}
           {status === "error" && (
             <>
               <div className="text-5xl mb-4">⚠️</div>
-              <h1 className="text-xl font-bold text-white mb-2">
+              <h1 className="text-xl font-bold text-foreground mb-2">
                 Something went wrong
               </h1>
-              <p className="text-red-400 text-sm mb-6">{errorMsg}</p>
+              <p className="text-red-600 text-sm mb-6">{errorMsg}</p>
               {email && (
                 <ResendSection
                   email={email}
@@ -124,13 +120,12 @@ export default function VerifyEmailPage() {
             </>
           )}
 
-          {/* Default: check your inbox */}
-          {(status === "idle" || status === "sent" || 
+          {(status === "idle" || status === "sent" ||
             (status === "sending" && !token)) && (
             <>
-              <div className="w-16 h-16 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center mx-auto mb-5">
+              <div className="w-16 h-16 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto mb-5">
                 <svg
-                  className="w-8 h-8 text-amber-400"
+                  className="w-8 h-8 text-indigo-600"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -144,15 +139,15 @@ export default function VerifyEmailPage() {
                 </svg>
               </div>
 
-              <h1 className="text-xl font-bold text-white mb-2">
+              <h1 className="text-xl font-bold text-foreground mb-2">
                 Check your inbox
               </h1>
-              <p className="text-zinc-400 text-sm mb-6">
+              <p className="text-muted-foreground text-sm mb-6">
                 {status === "sent"
                   ? "A new verification email has been sent."
                   : "We sent a verification link to your email. Click it to activate your account."}
                 {email && (
-                  <span className="block mt-1 text-zinc-300 font-medium">
+                  <span className="block mt-1 text-foreground font-medium">
                     {email}
                   </span>
                 )}
@@ -167,12 +162,12 @@ export default function VerifyEmailPage() {
             </>
           )}
 
-          <div className="mt-6 pt-5 border-t border-zinc-800">
+          <div className="mt-6 pt-5 border-t">
             <Link
               href="/sign-in"
-              className="text-sm text-zinc-500 hover:text-amber-400 transition"
+              className="text-sm text-muted-foreground hover:text-indigo-600 transition"
             >
-              ← Back to sign in
+              \u2190 Back to sign in
             </Link>
           </div>
         </div>
@@ -194,7 +189,7 @@ function ResendSection({
 }) {
   return (
     <div className="space-y-3">
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted-foreground">
         Didn&apos;t receive it? Enter your email and resend.
       </p>
       <input
@@ -202,14 +197,14 @@ function ResendSection({
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="you@example.com"
-        className="w-full px-4 py-2.5 rounded-lg bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition"
+        className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition"
       />
       <button
         onClick={onResend}
         disabled={loading || !email}
-        className="w-full py-2.5 rounded-lg border border-amber-400/50 text-amber-400 hover:bg-amber-400/10 font-medium text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full h-9 rounded-md border border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-medium text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? "Sending…" : "Resend verification email"}
+        {loading ? "Sending\u2026" : "Resend verification email"}
       </button>
     </div>
   );
