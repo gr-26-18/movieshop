@@ -69,27 +69,27 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4">
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/">
-            <span className="text-3xl font-black tracking-tighter text-white">
-              Movie<span className="text-amber-400">Shop</span>
+            <span className="text-3xl font-black tracking-tighter text-slate-900">
+              Movie<span className="text-indigo-600">Shop</span>
             </span>
           </Link>
-          <p className="text-zinc-500 text-sm mt-1">Welcome back</p>
+          <p className="text-muted-foreground text-sm mt-1">Welcome back</p>
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-white border rounded-xl p-8 shadow-sm">
           {serverError && (
-            <div className="mb-5 p-3 rounded-lg bg-red-950/50 border border-red-800 text-red-400 text-sm">
+            <div className="mb-5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               {serverError}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-1.5">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
                 Email
               </label>
               <input
@@ -99,15 +99,15 @@ export default function SignInPage() {
                 value={form.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
-                className={`w-full px-4 py-2.5 rounded-lg bg-zinc-800 border text-white placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition ${
-                  errors.email ? "border-red-500" : "border-zinc-700"
+                className={`w-full h-9 px-3 rounded-md border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition ${
+                  errors.email ? "border-red-500" : "border-input"
                 }`}
               />
-              {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
+              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-1.5">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1.5">
                 Password
               </label>
               <input
@@ -117,25 +117,25 @@ export default function SignInPage() {
                 value={form.password}
                 onChange={handleChange}
                 placeholder="Your password"
-                className={`w-full px-4 py-2.5 rounded-lg bg-zinc-800 border text-white placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition ${
-                  errors.password ? "border-red-500" : "border-zinc-700"
+                className={`w-full h-9 px-3 rounded-md border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition ${
+                  errors.password ? "border-red-500" : "border-input"
                 }`}
               />
-              {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password}</p>}
+              {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm tracking-wide transition disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full h-9 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Signing in…" : "Sign In"}
+              {loading ? "Signing in\u2026" : "Sign In"}
             </button>
           </form>
 
-          <p className="text-center text-sm text-zinc-500 mt-6">
+          <p className="text-center text-sm text-muted-foreground mt-6">
             Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="text-amber-400 hover:text-amber-300 font-medium transition">
+            <Link href="/sign-up" className="text-indigo-600 hover:text-indigo-700 font-medium transition">
               Sign up
             </Link>
           </p>
