@@ -23,7 +23,6 @@ export default async function DashboardPage({
   const params = await searchParams;
   const selectedOrderId = params.order;
 
-<<<<<<< HEAD
   const userId = await getCurrentUserId();
   if (!userId) {
     redirect('/sign-in');
@@ -31,11 +30,6 @@ export default async function DashboardPage({
 
   const session = await getSession();
   const displayName = session?.user?.name?.trim() || 'there';
-=======
-  // TODO(auth): replace this placeholder with Better Auth session user id
-  // once auth integration is merged by teammate.
-  const userId = 'guest';
->>>>>>> bee1df9 (Add checkout)
 
   /* Get all orders for this user with order items. */
 
@@ -67,8 +61,8 @@ export default async function DashboardPage({
   const totalSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0);
   const pendingOrders = orders.filter((o) => o.status === 'PENDING').length;
 
-  const userName = orders.length > 0 && orders[0].shippingName 
-    ? orders[0].shippingName.split(' ')[0] 
+  const userName = orders.length > 0 && orders[0].shippingName
+    ? orders[0].shippingName.split(' ')[0]
     : 'Guest';
 
   return (
@@ -78,11 +72,7 @@ export default async function DashboardPage({
       </Suspense>
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">
-<<<<<<< HEAD
           Welcome back, {displayName}
-=======
-          Welcome back, {userName}
->>>>>>> bee1df9 (Add checkout)
         </h1>
         <p className="text-muted-foreground">
           Here's what's happening with your movie collection.
