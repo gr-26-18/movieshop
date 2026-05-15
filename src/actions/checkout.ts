@@ -50,8 +50,9 @@ export async function createOrder(data: CheckoutFormData) {
       };
     });
 
-    // We use a mocked 'guest' userId until the auth team integrates Better Auth.
-    const mockUserId = 'guest';
+    const { getCurrentUserId } = await import('@/lib/admin-auth');
+    const loggedInUserId = await getCurrentUserId();
+    const mockUserId = loggedInUserId || 'guest';
 
     // Create the order
     const order = await prisma.order.create({

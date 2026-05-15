@@ -61,10 +61,6 @@ export default async function DashboardPage({
   const totalSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0);
   const pendingOrders = orders.filter((o) => o.status === 'PENDING').length;
 
-  const userName = orders.length > 0 && orders[0].shippingName
-    ? orders[0].shippingName.split(' ')[0]
-    : 'Guest';
-
   return (
     <div className="space-y-8">
       <Suspense fallback={null}>
