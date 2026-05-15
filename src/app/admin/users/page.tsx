@@ -10,18 +10,18 @@ async function updateUserRole(formData: FormData) {
 
   const session = await getSession();
   if (!session || session.user.role !== "admin") {
-    throw new Error("Unauthorized");
+    redirect("/admin/users?error=unauthorized");
   }
 
   const userId = formData.get("userId") as string;
 
   if (userId === session.user.id) {
-    throw new Error("You cannot change your own role.");
+    redirect("/admin/users?error=self-demotion");
   }
 
   const role = formData.get("role") as string;
   if (role !== "customer" && role !== "admin") {
-    throw new Error("Invalid role");
+    redirect("/admin/users?error=invalid-role");
   }
 
   await prisma.user.update({
@@ -32,7 +32,20 @@ async function updateUserRole(formData: FormData) {
   revalidatePath("/admin/users");
 }
 
-export default async function AdminUsersPage() {
+const errorMessages: Record<string, string> = {
+  "self-demotion": "You cannot change your own role.",
+  unauthorized: "You must be an admin to manage users.",
+  "invalid-role": "Invalid role selected.",
+};
+
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+  const errorMessage = error ? errorMessages[error] : null;
+
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
     select: {
@@ -53,6 +66,12 @@ export default async function AdminUsersPage() {
           Manage user accounts and roles.
         </p>
       </div>
+
+      {errorMessage && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-lg border">
         <table className="min-w-full divide-y">
