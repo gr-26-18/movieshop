@@ -14,7 +14,7 @@ const movieSchema = z.object({
   price: z.coerce.number().int().positive('Price must be positive'),
   stock: z.coerce.number().int().min(0, 'Stock cannot be negative'),
   runtime: z.coerce.number().int().positive('Runtime must be positive').nullable().optional(),
-  releaseDate: z.coerce.date({ invalid_type_error: 'Invalid date' }),
+  releaseDate: z.coerce.date({ message: 'Invalid date' }),
   imageUrl: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
   genreIds: z.array(z.string()).optional().default([]),
   directorId: z.array(z.string()).optional().default([]),
