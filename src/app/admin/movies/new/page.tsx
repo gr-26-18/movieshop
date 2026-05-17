@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-//import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createMovie as createMovieAction } from '@/actions/movies';
 import { ActorPicker } from "../../_components/actor-picker";
 import { GenrePicker } from "../../_components/genre-picker";
