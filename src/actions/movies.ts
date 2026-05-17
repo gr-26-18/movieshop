@@ -4,10 +4,8 @@
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-// [NEW 2026-05-17] Added Zod validation for movie server actions.
 import { z } from 'zod';
 
-// [NEW] Zod schema to validate movie form data before DB operations.
 const movieSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
   description: z.string().min(1, 'Description is required'),
@@ -37,14 +35,12 @@ export async function createMovie(formData: FormData) {
     actorIds: formData.getAll('actorIds'),
   };
 
-  // [NEW] Zod validation — rejects malformed data before hitting the DB.
   const parsed = movieSchema.safeParse(raw);
   if (!parsed.success) {
     console.error('Validation errors:', parsed.error.flatten());
     throw new Error('Invalid movie data');
   }
 
-  // [NEW] Use validated data only (safe after safeParse).
   const { genreIds, directorId, actorIds, ...movieData } = parsed.data;
 
   await prisma.$transaction(async (tx) => {
@@ -89,14 +85,12 @@ export async function updateMovie(id: string, formData: FormData) {
     actorIds: formData.getAll('actorIds'),
   };
 
-  // [NEW] Zod validation — same schema used for create and update.
   const parsed = movieSchema.safeParse(raw);
   if (!parsed.success) {
     console.error('Validation errors:', parsed.error.flatten());
     throw new Error('Invalid movie data');
   }
 
-  // [NEW] Use validated data only.
   const { genreIds, directorId, actorIds, imageUrl, ...movieData } = parsed.data;
 
   await prisma.$transaction(async (tx) => {
