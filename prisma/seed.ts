@@ -539,24 +539,16 @@ async function main() {
   } else {
     console.log(`Seeded ${createdMovies.length} movies (not enough for demo orders).`);
   }
-
+  
   console.log('');
-  console.log('Seeded 12 demo orders across 7 days — revenue chart is ready.');
-  console.log('');
-  console.log('To access admin:');
-  console.log('  1. Sign up at /sign-up');
-  console.log('  2. Run: UPDATE "User" SET role = \'admin\' WHERE email = \'your@email.com\';');
-  console.log('  3. Sign in and go to /admin');
-}
-
-console.log('');
   console.log('Seeded demo orders across 7 days — revenue chart is ready.');
   console.log('');
   console.log('To access admin:');
   console.log('  1. Sign up at /sign-up with email: admin@movieshop.com');
   console.log('  2. The role is already set to admin in the database');
   console.log('  3. Sign in and go to /admin');
-  
+}
+
 main()
   .catch((e) => {
     console.error(e);
