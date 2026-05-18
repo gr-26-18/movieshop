@@ -25,7 +25,7 @@ export default function Header({ user }: Props) {
 
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <Link
-              href="/"
+              href="/browse"
               className="transition-colors hover:text-foreground/80 text-foreground"
             >
               Browse
