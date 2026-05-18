@@ -1,5 +1,6 @@
 import MovieCard from '@/components/MovieCard';
 import { prisma } from '@/lib/prisma';
+import { runPrismaWithFallback } from '@/lib/prisma-utils';
 
 type LandingMovie = {
   id: string;
@@ -20,12 +21,16 @@ export default async function LandingPage({
 
   // 1. If searching, just get the filtered list
   if (q && q.trim() !== '') {
-    const searchResults = await prisma.movie.findMany({
-      where: {
-        title: { contains: q.trim(), mode: 'insensitive' },
-      },
-      include: { genres: true },
-    });
+    const searchResults = await runPrismaWithFallback(
+      () =>
+        prisma.movie.findMany({
+          where: {
+            title: { contains: q.trim(), mode: 'insensitive' },
+          },
+          include: { genres: true },
+        }),
+      [] as LandingMovie[],
+    );
 
     return (
       <main className="container mx-auto py-8">
@@ -52,31 +57,44 @@ export default async function LandingPage({
   }
   // Fetching the 4 categories required by the spec.
   // "Most Purchased" is ranked by summed quantity sold.
-  const [mostPurchasedIds, mostRecent, oldest, cheapest] = await Promise.all([
-    prisma.orderItem.groupBy({
-      by: ['movieId'],
-      _sum: { quantity: true },
-      orderBy: { _sum: { quantity: 'desc' } },
-      take: 5,
-    }),
-    prisma.movie.findMany({
-      take: 5,
-      orderBy: { releaseDate: 'desc' },
-      include: { genres: true },
-    }),
-    prisma.movie.findMany({
-      take: 5,
-      orderBy: { releaseDate: 'asc' },
-      include: { genres: true },
-    }),
-    prisma.movie.findMany({
-      take: 5,
-      orderBy: { price: 'asc' },
-      include: { genres: true },
-    }),
-  ]);
+  const [mostPurchasedIds, mostRecent, oldest, cheapest] =
+    await runPrismaWithFallback(
+      () =>
+        Promise.all([
+          prisma.orderItem.groupBy({
+            by: ['movieId'],
+            _sum: { quantity: true },
+            orderBy: { _sum: { quantity: 'desc' } },
+            take: 5,
+          }),
+          prisma.movie.findMany({
+            take: 5,
+            orderBy: { releaseDate: 'desc' },
+            include: { genres: true },
+          }),
+          prisma.movie.findMany({
+            take: 5,
+            orderBy: { releaseDate: 'asc' },
+            include: { genres: true },
+          }),
+          prisma.movie.findMany({
+            take: 5,
+            orderBy: { price: 'asc' },
+            include: { genres: true },
+          }),
+        ]),
+      [[], [], [], []] as [
+        { movieId: string; _sum: { quantity: number | null } }[],
+        LandingMovie[],
+        LandingMovie[],
+        LandingMovie[],
+      ],
+    );
 
-  const mostPurchased = await getMostPurchasedMovies(mostPurchasedIds);
+  const mostPurchased = await runPrismaWithFallback(
+    () => getMostPurchasedMovies(mostPurchasedIds),
+    [] as LandingMovie[],
+  );
 
   return (
     <main className="container mx-auto py-10 space-y-12">
@@ -152,3 +170,5 @@ function MovieSection({
     </section>
   );
 }
+
+

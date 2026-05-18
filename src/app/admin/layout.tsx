@@ -31,6 +31,9 @@ export default async function AdminLayout({
             <Link href="/admin/people" className="hover:underline">
               People
             </Link>
+            <Link href="/admin/users" className="hover:underline">
+              Users
+            </Link>
           </nav>
         </div>
       </header>

@@ -494,41 +494,18 @@ async function main() {
     };
 
     const seededOrderPlans = [
-      {
-        // Preserves the original total (762 kr) but places it on a recent day.
-        daysAgo: 1,
-        status: 'COMPLETED' as const,
-        items: [
-          { movieIndex: 0, quantity: 1 },
-          { movieIndex: 1, quantity: 1 },
-          { movieIndex: 2, quantity: 1 },
-          { movieIndex: 3, quantity: 1 },
-          { movieIndex: 4, quantity: 1 },
-        ],
-      },
-      {
-        daysAgo: 2,
-        status: 'PENDING' as const,
-        items: [
-          { movieIndex: 2, quantity: 2 },
-        ],
-      },
-      {
-        daysAgo: 4,
-        status: 'CANCELLED' as const,
-        items: [
-          { movieIndex: 3, quantity: 1 },
-          { movieIndex: 4, quantity: 1 },
-        ],
-      },
-      {
-        daysAgo: 6,
-        status: 'COMPLETED' as const,
-        items: [
-          { movieIndex: 5, quantity: 1 },
-          { movieIndex: 0, quantity: 1 },
-        ],
-      },
+      { daysAgo: 0, status: 'COMPLETED' as const, items: [{ movieIndex: 0, quantity: 1 }, { movieIndex: 7, quantity: 2 }] },
+      { daysAgo: 0, status: 'PENDING' as const, items: [{ movieIndex: 3, quantity: 1 }] },
+      { daysAgo: 1, status: 'COMPLETED' as const, items: [{ movieIndex: 0, quantity: 1 }, { movieIndex: 1, quantity: 1 }, { movieIndex: 2, quantity: 1 }, { movieIndex: 3, quantity: 1 }, { movieIndex: 4, quantity: 1 }] },
+      { daysAgo: 1, status: 'COMPLETED' as const, items: [{ movieIndex: 10, quantity: 1 }] },
+      { daysAgo: 2, status: 'PENDING' as const, items: [{ movieIndex: 2, quantity: 2 }] },
+      { daysAgo: 2, status: 'COMPLETED' as const, items: [{ movieIndex: 5, quantity: 1 }, { movieIndex: 6, quantity: 1 }] },
+      { daysAgo: 3, status: 'COMPLETED' as const, items: [{ movieIndex: 8, quantity: 1 }, { movieIndex: 12, quantity: 1 }] },
+      { daysAgo: 3, status: 'COMPLETED' as const, items: [{ movieIndex: 1, quantity: 3 }] },
+      { daysAgo: 4, status: 'CANCELLED' as const, items: [{ movieIndex: 3, quantity: 1 }, { movieIndex: 4, quantity: 1 }] },
+      { daysAgo: 5, status: 'COMPLETED' as const, items: [{ movieIndex: 9, quantity: 2 }] },
+      { daysAgo: 5, status: 'COMPLETED' as const, items: [{ movieIndex: 11, quantity: 1 }, { movieIndex: 14, quantity: 1 }] },
+      { daysAgo: 6, status: 'COMPLETED' as const, items: [{ movieIndex: 5, quantity: 1 }, { movieIndex: 0, quantity: 1 }] },
     ] as const;
 
     for (const plan of seededOrderPlans) {
@@ -555,11 +532,21 @@ async function main() {
         },
       });
     }
+
+    console.log(
+      `Successfully seeded ${createdMovies.length} movies with persons, credits, and ${seededOrderPlans.length} demo orders!`,
+    );
+  } else {
+    console.log(`Seeded ${createdMovies.length} movies (not enough for demo orders).`);
   }
 
-  console.log(
-    `Successfully seeded ${createdMovies.length} movies with persons, credits, and multi-day demo orders!`,
-  );
+  console.log('');
+  console.log('Seeded 12 demo orders across 7 days — revenue chart is ready.');
+  console.log('');
+  console.log('To access admin:');
+  console.log('  1. Sign up at /sign-up');
+  console.log('  2. Run: UPDATE "User" SET role = \'admin\' WHERE email = \'your@email.com\';');
+  console.log('  3. Sign in and go to /admin');
 }
 
 console.log('');
