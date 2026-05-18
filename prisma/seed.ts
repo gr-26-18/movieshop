@@ -18,6 +18,10 @@ async function main() {
   await prisma.person.deleteMany();
   await prisma.movie.deleteMany();
   await prisma.genre.deleteMany();
+  await prisma.session.deleteMany();
+  await prisma.account.deleteMany();
+  await prisma.verification.deleteMany();
+  await prisma.user.deleteMany();
 
   // 2. Movie Data
   const movieData = [
@@ -464,11 +468,18 @@ async function main() {
   }
 
   // 4. Create Simulated Orders
-
-  // Orders use a fixed userId for demo data.
-  // The admin dashboard (revenue chart, recent orders, top movies) shows ALL orders
-  // regardless of userId, so this works for presentation.
-  const userId = 'demo-user-id';
+  const adminUser = await prisma.user.create({
+    data: {
+      id: 'demo-admin-id',
+      name: 'Admin',
+      email: 'admin@movieshop.com',
+      emailVerified: true,
+      role: 'admin',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const userId = adminUser.id;
 
   // Verify we actually have movies before trying to use their IDs
   if (createdMovies.length >= 5) {
@@ -528,13 +539,13 @@ async function main() {
   } else {
     console.log(`Seeded ${createdMovies.length} movies (not enough for demo orders).`);
   }
-
+  
   console.log('');
-  console.log('Seeded 12 demo orders across 7 days — revenue chart is ready.');
+  console.log('Seeded demo orders across 7 days — revenue chart is ready.');
   console.log('');
   console.log('To access admin:');
-  console.log('  1. Sign up at /sign-up');
-  console.log('  2. Run: UPDATE "User" SET role = \'admin\' WHERE email = \'your@email.com\';');
+  console.log('  1. Sign up at /sign-up with email: admin@movieshop.com');
+  console.log('  2. The role is already set to admin in the database');
   console.log('  3. Sign in and go to /admin');
 }
 
