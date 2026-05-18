@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { isAdminUser } from '@/lib/admin-auth';
+import { revalidatePath } from 'next/cache';
 
 export async function getOrders() {
   const isAdmin = await isAdminUser();
@@ -35,4 +36,6 @@ export async function updateOrderStatus(orderId: string, status: 'PENDING' | 'CO
     where: { id: orderId },
     data: { status },
   });
+  
+  revalidatePath('/admin/orders');
 }

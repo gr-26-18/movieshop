@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { prisma } from '@/lib/prisma';
 import MovieCard from '@/components/MovieCard';
 import FilterSidebar from '@/components/browse/FilterSidebar';
@@ -67,7 +68,9 @@ export default async function BrowsePage({
       <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] lg:grid-cols-[300px_1fr] gap-8 items-start">
         {/* Sidebar */}
         <div className="sticky top-24">
-          <FilterSidebar genres={genres} directors={directors} actors={actors} />
+          <Suspense fallback={<div>Loading filters...</div>}>
+            <FilterSidebar genres={genres} directors={directors} actors={actors} />
+          </Suspense>
         </div>
 
         {/* Results */}
