@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
+
 // Added 2026-05-05:
 // Explicit typing helps avoid implicit any[] warnings for createdMovies.
 import type { Movie } from '@/generated/prisma/client';
@@ -468,18 +470,21 @@ async function main() {
   }
 
   // 4. Create Simulated Orders
-  const adminUser = await prisma.user.create({
-    data: {
-      id: 'demo-admin-id',
+  const adminUser = await auth.api.signUpEmail({
+    body: {
       name: 'Admin',
       email: 'admin@movieshop.com',
-      emailVerified: true,
-      role: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      password: 'Admin1234!',
     },
   });
-  const userId = adminUser.id;
+
+  // Set role to admin
+  await prisma.user.update({
+    where: { email: 'admin@movieshop.com' },
+    data: { role: 'admin', emailVerified: true },
+  });
+
+  const userId = adminUser.user.id;
 
   // Verify we actually have movies before trying to use their IDs
   if (createdMovies.length >= 5) {
@@ -544,9 +549,9 @@ async function main() {
   console.log('Seeded demo orders across 7 days — revenue chart is ready.');
   console.log('');
   console.log('To access admin:');
-  console.log('  1. Sign up at /sign-up with email: admin@movieshop.com');
-  console.log('  2. The role is already set to admin in the database');
-  console.log('  3. Sign in and go to /admin');
+  console.log('  1. Go to /sign-in');
+  console.log('  2. Email: admin@movieshop.com');
+  console.log('  3. Password: Admin1234!');
 }
 
 main()
