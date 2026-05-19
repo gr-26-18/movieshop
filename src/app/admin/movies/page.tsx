@@ -149,6 +149,12 @@ export default async function AdminMoviesPage({
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     <Link
+                      href={`/movie/${movie.id}?from=admin-movies`}
+                      className="text-green-600 hover:underline"
+                    >
+                      View
+                    </Link>
+                    <Link
                       href={`/admin/movies/${movie.id}/edit`}
                       className="text-blue-600 hover:underline"
                     >
