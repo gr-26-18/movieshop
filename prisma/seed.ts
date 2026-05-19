@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
-
+import { hashPassword } from '@better-auth/utils/password';
 // Added 2026-05-05:
 // Explicit typing helps avoid implicit any[] warnings for createdMovies.
 import type { Movie } from '@/generated/prisma/client';
@@ -470,21 +469,58 @@ async function main() {
   }
 
   // 4. Create Simulated Orders
-  const adminUser = await auth.api.signUpEmail({
-    body: {
+  const adminPassword = await hashPassword('admin1234');
+  const adminUser = await prisma.user.create({
+    data: {
+      id: 'demo-admin-id',
       name: 'Admin',
       email: 'admin@movieshop.com',
-      password: 'Admin1234!',
+      password: 'adminPassword',
     },
   });
 
-  // Set role to admin
-  await prisma.user.update({
-    where: { email: 'admin@movieshop.com' },
-    data: { role: 'admin', emailVerified: true },
+  // Create Better Auth account for admin
+  await prisma.account.create({
+    data: {
+      id: 'demo-admin-account',
+      userId: adminUser.id,
+      providerId: 'credential',
+      accountId: adminUser.email,
+      password: adminPassword,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
   });
 
-  const userId = adminUser.user.id;
+  // Create a demo customer user with a known password for presentations
+  const demoPassword = await hashPassword('demo1234');
+  const demoCustomer = await prisma.user.create({
+    data: {
+      id: 'demo-customer-id',
+      name: 'Demo Customer',
+      email: 'demo@movieshop.com',
+      emailVerified: true,
+      role: 'customer',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  // Create Better Auth account for demo customer
+  await prisma.account.create({
+    data: {
+      id: 'demo-customer-account',
+      userId: demoCustomer.id,
+      providerId: 'credential',
+      accountId: demoCustomer.email,
+      password: demoPassword,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  const userId = adminUser.id;
+  const demoUserId = demoCustomer.id;
 
   // Verify we actually have movies before trying to use their IDs
   if (createdMovies.length >= 5) {
@@ -525,9 +561,23 @@ async function main() {
         0,
       );
 
+      // Create order for admin user
       await prisma.order.create({
         data: {
           userId,
+          totalAmount,
+          status: plan.status,
+          orderDate: orderDateDaysAgo(plan.daysAgo),
+          orderItems: {
+            create: orderItems,
+          },
+        },
+      });
+
+      // Create matching order for demo customer (for dashboard presentation)
+      await prisma.order.create({
+        data: {
+          userId: demoUserId,
           totalAmount,
           status: plan.status,
           orderDate: orderDateDaysAgo(plan.daysAgo),
@@ -548,10 +598,9 @@ async function main() {
   console.log('');
   console.log('Seeded demo orders across 7 days — revenue chart is ready.');
   console.log('');
-  console.log('To access admin:');
-  console.log('  1. Go to /sign-in');
-  console.log('  2. Email: admin@movieshop.com');
-  console.log('  3. Password: Admin1234!');
+  console.log('Demo accounts:');
+  console.log('  Admin: admin@movieshop.com / admin1234 — go to /admin');
+  console.log('  Customer: demo@movieshop.com / demo1234 — go to /dashboard');
 }
 
 main()

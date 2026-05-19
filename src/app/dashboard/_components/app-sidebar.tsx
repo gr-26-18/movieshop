@@ -3,7 +3,7 @@
 // Updated 2026-05-11 — Help link, active states, My Movies ?section=, Suspense-friendly searchParams.
 
 import * as React from "react"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   Film,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 import {
   Sidebar,
@@ -66,6 +67,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname() ?? ""
   const searchParams = useSearchParams()
+  const router = useRouter()
   const dashboardSection = searchParams.get("section")
 
   const isOverviewActive =
@@ -112,28 +114,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title} isActive={active}>
-                      <Link
-                        href={item.url}
-                        onClick={
-                          item.title === "My Movies" &&
-                          pathname === "/dashboard" &&
-                          dashboardSection === "order-history"
-                            ? (e) => {
-                                e.preventDefault()
-                                document
-                                  .getElementById("order-history")
-                                  ?.scrollIntoView({
-                                    behavior: "smooth",
-                                    block: "start",
-                                  })
-                              }
-                            : undefined
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      onClick={() => {
+                        if (item.title === "My Movies" && pathname === "/dashboard" && dashboardSection === "order-history") {
+                          document.getElementById("order-history")?.scrollIntoView({ behavior: "smooth", block: "start" })
+                        } else {
+                          router.push(item.url)
                         }
-                      >
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
+                      }}
+                      style={active ? { backgroundColor: "#e8e8e8", fontWeight: 500 } : undefined}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
@@ -154,11 +147,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild size="sm" isActive={active}>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
+                    <SidebarMenuButton
+                      size="sm"
+                      onClick={() => router.push(item.url)}
+                      style={active ? { backgroundColor: "#e8e8e8", fontWeight: 500 } : undefined}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
