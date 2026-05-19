@@ -117,9 +117,13 @@ export default async function DashboardPage({
                     </p>
                     <Link
                       className="text-sm text-blue-600 hover:underline"
-                      href={`/dashboard?order=${order.id}`}
+                      href={
+                        selectedOrderId === order.id
+                          ? '/dashboard'
+                          : `/dashboard?order=${order.id}`
+                      }
                     >
-                      View order
+                      {selectedOrderId === order.id ? 'Hide order' : 'View order'}
                     </Link>
                   </div>
                 </div>
