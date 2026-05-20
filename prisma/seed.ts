@@ -475,10 +475,7 @@ async function main() {
       id: 'demo-admin-id',
       name: 'Admin',
       email: 'admin@movieshop.com',
-      emailVerified: true,
-      role: 'admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      password: 'adminPassword',
     },
   });
 
