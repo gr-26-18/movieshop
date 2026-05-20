@@ -1,57 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
+import { updateMovie } from "@/actions/movies";
 import { UpdateButton } from "@/app/admin/_components/update-button";
 import { GenrePicker } from "@/app/admin/_components/genre-picker";
 import { DirectorPicker } from "@/app/admin/_components/director-picker";
 import { ActorPicker } from "@/app/admin/_components/actor-picker";
-
-async function updateMovie(id: string, formData: FormData) {
-  "use server";
-
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const price = Number(formData.get("price"));
-  const stock = Number(formData.get("stock"));
-  const runtime = formData.get("runtime") ? Number(formData.get("runtime")) : null;
-  const releaseDate = new Date(formData.get("releaseDate") as string);
-
-  const genreIds = formData.getAll("genreIds") as string[];
-  const directorIds = formData.getAll("directorId") as string[];
-  const actorIds = formData.getAll("actorIds") as string[];
-
-  await prisma.$transaction(async (tx) => {
-    await tx.movie.update({
-      where: { id },
-      data: {
-        title,
-        description,
-        price,
-        stock,
-        runtime,
-        releaseDate,
-        genres: {
-          set: genreIds.map((id) => ({ id })),
-        },
-      },
-    });
-
-    await tx.movieCredit.deleteMany({ where: { movieId: id } });
-
-    for (const directorId of directorIds) {
-      await tx.movieCredit.create({
-        data: { movieId: id, personId: directorId, role: 'DIRECTOR' },
-      });
-    }
-
-    for (const actorId of actorIds) {
-      await tx.movieCredit.create({
-        data: { movieId: id, personId: actorId, role: 'ACTOR' },
-      });
-    }
-  });
-
-  redirect("/admin/movies");
-}
 
 export default async function AdminEditMoviePage({
   params,
@@ -84,11 +36,13 @@ export default async function AdminEditMoviePage({
     .filter((c) => c.role === 'ACTOR')
     .map((c) => c.person);
 
+  const action = updateMovie.bind(null, id);
+
   return (
     <section className="space-y-4">
       <h2 className="text-2xl font-bold tracking-tight">Edit Movie</h2>
 
-      <form action={updateMovie.bind(null, id)} className="space-y-3">
+      <form action={action} className="space-y-3">
         <div>
           <label className="text-sm">Title</label>
           <input
