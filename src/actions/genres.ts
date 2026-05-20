@@ -1,9 +1,11 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { isAdminUser } from '@/lib/admin-auth';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+
 
 const genreSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
@@ -13,6 +15,9 @@ const genreSchema = z.object({
 export type GenreFormData = z.infer<typeof genreSchema>;
 
 export async function createGenre(formData: FormData) {
+  const isAdmin = await isAdminUser();
+  if (!isAdmin) throw new Error('Unauthorized');
+
   const raw = {
     name: formData.get('name'),
     description: formData.get('description') || undefined,
@@ -33,6 +38,9 @@ export async function createGenre(formData: FormData) {
 }
 
 export async function updateGenre(id: string, formData: FormData) {
+  const isAdmin = await isAdminUser();
+  if (!isAdmin) throw new Error('Unauthorized');
+
   const raw = {
     name: formData.get('name'),
     description: formData.get('description') || undefined,
@@ -54,9 +62,11 @@ export async function updateGenre(id: string, formData: FormData) {
 }
 
 export async function deleteGenre(id: string) {
+  const isAdmin = await isAdminUser();
+  if (!isAdmin) throw new Error('Unauthorized');
+
   await prisma.genre.delete({ where: { id } });
   revalidatePath('/admin/genres');
-  redirect('/admin/genres');
 }
 
 export async function getGenres() {
