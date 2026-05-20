@@ -19,7 +19,10 @@ async function deleteMovie(id: string) {
 type MoviesSearchParams = {
   q?: string;
   stock?: "all" | "in" | "out";
+  page?: string;
 };
+
+const PAGE_SIZE = 10;
 
 function currencyFromCents(value: number): string {
   return new Intl.NumberFormat("sv-SE", {
@@ -41,6 +44,7 @@ export default async function AdminMoviesPage({
   const params = await searchParams;
   const query = params.q?.trim() ?? "";
   const stockFilter = params.stock ?? "all";
+  const currentPage = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
 
   const whereClause = {
     ...(query
@@ -58,19 +62,34 @@ export default async function AdminMoviesPage({
       : {}),
   };
 
-  const movies = await prisma.movie.findMany({
-    where: whereClause,
-    orderBy: { updatedAt: "desc" },
-    take: 20,
-    select: {
-      id: true,
-      title: true,
-      stock: true,
-      price: true,
-      releaseDate: true,
-      updatedAt: true,
-    },
-  });
+  const [movies, totalCount] = await Promise.all([
+    prisma.movie.findMany({
+      where: whereClause,
+      orderBy: { updatedAt: "desc" },
+      skip: (currentPage - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      select: {
+        id: true,
+        title: true,
+        stock: true,
+        price: true,
+        releaseDate: true,
+        updatedAt: true,
+      },
+    }),
+    prisma.movie.count({ where: whereClause }),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  function pageUrl(page: number): string {
+    const p = new URLSearchParams();
+    if (query) p.set("q", query);
+    if (stockFilter !== "all") p.set("stock", stockFilter);
+    if (page > 1) p.set("page", String(page));
+    const qs = p.toString();
+    return qs ? `/admin/movies?${qs}` : "/admin/movies";
+  }
 
   return (
     <section className="space-y-4">
@@ -113,7 +132,10 @@ export default async function AdminMoviesPage({
       </form>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <span>Showing {movies.length} result(s)</span>
+        <span>
+          Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+          {Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
+        </span>
         {query ? <Badge variant="outline">query: {query}</Badge> : null}
         {stockFilter !== "all" ? (
           <Badge variant="outline">stock: {stockFilter}</Badge>
@@ -177,6 +199,40 @@ export default async function AdminMoviesPage({
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </span>
+          <div className="flex gap-2">
+            {currentPage > 1 ? (
+              <Link
+                href={pageUrl(currentPage - 1)}
+                className="rounded-md border px-3 py-2 text-sm hover:bg-muted"
+              >
+                Previous
+              </Link>
+            ) : (
+              <span className="rounded-md border px-3 py-2 text-sm text-muted-foreground">
+                Previous
+              </span>
+            )}
+            {currentPage < totalPages ? (
+              <Link
+                href={pageUrl(currentPage + 1)}
+                className="rounded-md border px-3 py-2 text-sm hover:bg-muted"
+              >
+                Next
+              </Link>
+            ) : (
+              <span className="rounded-md border px-3 py-2 text-sm text-muted-foreground">
+                Next
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
