@@ -2,6 +2,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { isAdminUser } from '@/lib/admin-auth';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -12,6 +13,9 @@ const personSchema = z.object({
 });
 
 export async function createPerson(formData: FormData) {
+  const isAdmin = await isAdminUser();
+  if (!isAdmin) throw new Error('Unauthorized');
+
   const raw = {
     name: formData.get('name'),
     bio: formData.get('bio') || '',
@@ -35,6 +39,9 @@ export async function createPerson(formData: FormData) {
 }
 
 export async function updatePerson(id: string, formData: FormData) {
+  const isAdmin = await isAdminUser();
+  if (!isAdmin) throw new Error('Unauthorized');
+
   const raw = {
     name: formData.get('name'),
     bio: formData.get('bio') || '',
@@ -59,6 +66,9 @@ export async function updatePerson(id: string, formData: FormData) {
 }
 
 export async function deletePerson(id: string) {
+  const isAdmin = await isAdminUser();
+  if (!isAdmin) throw new Error('Unauthorized');
+
   await prisma.person.delete({ where: { id } });
   revalidatePath('/admin/people');
   redirect('/admin/people');
