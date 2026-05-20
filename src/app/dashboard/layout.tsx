@@ -6,19 +6,23 @@ import { Separator } from "@/components/ui/separator"
 import { DashboardBreadcrumb } from "./_components/dashboard-breadcrumb"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { dashboardTheme } from "./theme"
+import { getSession } from "@/lib/session"
 import "./dashboard.css"
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await getSession()
+  const user = session?.user ?? null
+
   return (
     <div style={dashboardTheme} className="min-h-screen bg-background text-foreground font-sans antialiased">
       <TooltipProvider>
         <SidebarProvider>
           <Suspense fallback={null}>
-            <AppSidebar />
+            <AppSidebar user={user} />
           </Suspense>
           <SidebarInset>
             <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-card/50 backdrop-blur-sm sticky top-0 z-10">

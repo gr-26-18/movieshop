@@ -64,7 +64,7 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sidebar> & { user: { name: string | null; email: string } | null }) {
   const pathname = usePathname() ?? ""
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -171,8 +171,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <User className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none overflow-hidden">
-                  <span className="font-medium truncate text-sm">Samir</span>
-                  <span className="text-xs text-muted-foreground truncate">samir@example.com</span>
+                  <span className="font-medium truncate text-sm">{user?.name ?? "User"}</span>
+                  <span className="text-xs text-muted-foreground truncate">{user?.email ?? ""}</span>
                 </div>
                 <LogOut className="ml-auto size-4 text-muted-foreground" />
               </div>
