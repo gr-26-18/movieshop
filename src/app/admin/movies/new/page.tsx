@@ -1,55 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
+import { createMovie } from "@/actions/movies";
 import { ActorPicker } from "../../_components/actor-picker";
 import { GenrePicker } from "../../_components/genre-picker";
-import { DirectorPicker } from "../../_components/director-picker";
+import { DirectorPicker } from "../../_components/director-picker"
 
-async function createMovie(formData: FormData) {
-  "use server";
-
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const price = Number(formData.get("price"));
-  const stock = Number(formData.get("stock"));
-  const runtime = formData.get("runtime") ? Number(formData.get("runtime")) : null;
-  const releaseDate = new Date(formData.get("releaseDate") as string);
-  const imageUrl = formData.get("imageUrl") as string;
-
-  const genreIds = formData.getAll("genreIds") as string[];
-  const directorIds = formData.getAll("directorId") as string[];
-  const actorIds = formData.getAll("actorIds") as string[];
-
-  await prisma.$transaction(async (tx) => {
-    const movie = await tx.movie.create({
-      data: {
-        title,
-        description,
-        price,
-        stock,
-        runtime,
-        releaseDate,
-        imageUrl,
-        genres: {
-          connect: genreIds.map((id) => ({ id })),
-        },
-      },
-    });
-
-    for (const directorId of directorIds) {
-      await tx.movieCredit.create({
-        data: { movieId: movie.id, personId: directorId, role: 'DIRECTOR' },
-      });
-    }
-
-    for (const actorId of actorIds) {
-      await tx.movieCredit.create({
-        data: { movieId: movie.id, personId: actorId, role: 'ACTOR' },
-      });
-    }
-  });
-
-  redirect("/admin/movies");
-}
 
 export default async function AdminNewMoviePage() {
   const [genres, people] = await Promise.all([

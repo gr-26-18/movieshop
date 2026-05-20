@@ -2,6 +2,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { isAdminUser } from '@/lib/admin-auth';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -22,6 +23,9 @@ const movieSchema = z.object({
 export type MovieFormData = z.infer<typeof movieSchema>;
 
 export async function createMovie(formData: FormData) {
+  const isAdmin = await isAdminUser();
+  if (!isAdmin) throw new Error('Unauthorized');
+
   const raw = {
     title: formData.get('title'),
     description: formData.get('description'),
@@ -72,6 +76,9 @@ export async function createMovie(formData: FormData) {
 }
 
 export async function updateMovie(id: string, formData: FormData) {
+  const isAdmin = await isAdminUser();
+  if (!isAdmin) throw new Error('Unauthorized');
+
   const raw = {
     title: formData.get('title'),
     description: formData.get('description'),
@@ -125,6 +132,9 @@ export async function updateMovie(id: string, formData: FormData) {
 }
 
 export async function deleteMovie(id: string) {
+  const isAdmin = await isAdminUser();
+  if (!isAdmin) throw new Error('Unauthorized');
+
   await prisma.movie.delete({ where: { id } });
   revalidatePath('/admin/movies');
   redirect('/admin/movies');
