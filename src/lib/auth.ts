@@ -15,6 +15,25 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      if (!resend) {
+        console.log(`[DEV] Reset password for ${user.email}: ${url}`);
+        return;
+      }
+
+      await resend.emails.send({
+        from: "MovieShop <onboarding@resend.dev>",
+        to: user.email,
+        subject: "Reset your MovieShop password",
+        html: `
+          <h2>Reset your password</h2>
+          <p>Click the link below to reset your password:</p>
+          <a href="${url}">Reset Password</a>
+          <p>This link expires in 1 hour.</p>
+          <p>If you didn't request this, ignore this email.</p>
+        `,
+      });
+    },
   },
 
   emailVerification: {
