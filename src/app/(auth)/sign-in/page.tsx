@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
@@ -16,6 +16,12 @@ type FieldErrors = Partial<Record<keyof SignInForm, string>>;
 
 export default function SignInPage() {
   const router = useRouter();
+  const [justVerified, setJustVerified] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setJustVerified(params.get("verified") === "true");
+  }, []);
   const [form, setForm] = useState<SignInForm>({ email: "", password: "" });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
@@ -84,6 +90,12 @@ export default function SignInPage() {
           {serverError && (
             <div className="mb-5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               {serverError}
+            </div>
+          )}
+
+          {justVerified && (
+            <div className="mb-5 p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm text-center">
+              ✅ Email verified! You can now sign in.
             </div>
           )}
 

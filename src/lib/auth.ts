@@ -56,7 +56,7 @@ export const auth = betterAuth({
         `,
       });
     },
-    verificationCallbackURL: "/verify-email",
+    verificationCallbackURL: "/sign-in?verified=true",
   },
 
   session: {

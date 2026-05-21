@@ -11,12 +11,17 @@ export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const justSent = searchParams.get("sent") === "true";
+  
   const token = searchParams.get("token");
   const emailParam = searchParams.get("email") ?? "";
+  const justSent = searchParams.get("sent") === "true";
+  const justVerified = searchParams.get("verified") === "true";
+  
 
   const [email, setEmail] = useState(emailParam);
-  const [status, setStatus] = useState<Status>(justSent ? "sent" : "idle");
+  const [status, setStatus] = useState<Status>(
+  justVerified ? "verified" : justSent ? "sent" : !token && !justSent ? "verified" : "idle"
+  );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,7 +38,7 @@ export default function VerifyEmailPage() {
           setStatus("error");
         } else {
           setStatus("verified");
-          setTimeout(() => router.push("/"), 2500);
+          // User clicks button to go to sign in
         }
       } catch {
         setErrorMsg("Something went wrong during verification.");
@@ -80,13 +85,19 @@ export default function VerifyEmailPage() {
 
           {status === "verified" && (
             <>
-              <div className="text-5xl mb-4">✅</div>
-              <h1 className="text-xl font-bold text-foreground mb-2">
+              <div className="text-7xl mb-6">✅</div>
+              <h1 className="text-3xl font-bold text-foreground mb-3">
                 Email Verified!
               </h1>
-              <p className="text-muted-foreground text-sm">
-                Your account is confirmed. Redirecting you to home\u2026
+              <p className="text-muted-foreground text-base mb-6">
+                Your account is confirmed. You can now sign in.
               </p>
+              <Link
+                href="/sign-in"
+                className="w-full inline-block h-9 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition text-center leading-9"
+              >
+                Go to Sign In
+              </Link>
             </>
           )}
 
@@ -162,14 +173,16 @@ export default function VerifyEmailPage() {
             </>
           )}
 
-          <div className="mt-6 pt-5 border-t">
-            <Link
-              href="/sign-in"
-              className="text-sm text-muted-foreground hover:text-indigo-600 transition"
-            >
-              \u2190 Back to sign in
-            </Link>
-          </div>
+          {status !== "verified" && (
+            <div className="mt-6 pt-5 border-t">
+              <Link
+                href="/sign-in"
+                className="text-sm text-muted-foreground hover:text-indigo-600 transition"
+              >
+                ← Back to sign in
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>
