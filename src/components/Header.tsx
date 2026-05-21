@@ -66,16 +66,26 @@ export default function Header({ user }: Props) {
               <SignOutButton />
             </>
           ) : (
-            <Link href="/sign-in">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-foreground gap-2"
-              >
-                <User className="h-4 w-4" />
-                <span>Sign In</span>
-              </Button>
-            </Link>
+            <>
+              <Link href="/sign-in">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-indigo-600 border-indigo-600 hover:bg-indigo-50 gap-2"
+                >
+                  <User className="h-4 w-4" />
+                  <span>Sign In</span>
+                </Button>
+              </Link>
+              <Link href="/sign-up">
+                <Button
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600 gap-2"
+                >
+                  <span>Sign Up</span>
+                </Button>
+              </Link>
+            </>
           )}
         </div>
       </div>
