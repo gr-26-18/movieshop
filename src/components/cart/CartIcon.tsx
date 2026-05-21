@@ -13,7 +13,7 @@ export default function CartIcon() {
       <Button
         variant="ghost"
         size="icon"
-        className="relative text-muted-foreground hover:text-foreground rounded-full p-2"
+        className="relative text-indigo-600 hover:text-indigo-700 rounded-full p-2"
       >
         <ShoppingCart className="h-5 w-5" />
         {totalItems > 0 && (
